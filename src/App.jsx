@@ -220,12 +220,12 @@ className={`${baseClasses} ${sizeClasses[size]} ${variantClasses[variant]} ${dis
 
 const PlayerCard = ({ player, onUpdateSP, onUpdateCP, isActive, isMyPlayer }) => (
 <Card className={`p-4 ${isActive ? 'ring-2 ring-purple-500' : ''}`}>
-<div className="flex items-center justify-between mb-3">
-<div className="flex items-center gap-2">
-<div className={`w-3 h-3 rounded-full ${player.color}`}></div>
-<span className="font-bold text-white">{player.name}</span>
+<div className="flex items-center justify-between gap-2 mb-3 min-w-0">
+<div className="flex items-center gap-2 min-w-0">
+<div className={`w-3 h-3 shrink-0 rounded-full ${player.color}`}></div>
+<span className="font-bold text-white truncate">{player.name}</span>
 </div>
-<span className="text-xs text-gray-400">{player.faction}</span>
+<span className="text-xs text-gray-400 truncate shrink-0 max-w-[45%]">{player.faction}</span>
 </div>
 <div className="grid grid-cols-2 gap-3">
 <div className="bg-gray-900 rounded-lg p-2">
@@ -400,6 +400,22 @@ return (
   );
 };
 
+// ==================== FOOTER ====================
+const Footer = () => (
+  <div className="py-6 px-4 text-center border-t border-gray-800 mt-8">
+    <p className="text-gray-500 text-sm mb-3">If you're enjoying Horde Mode Companion, consider buying me a coffee!</p>
+    <a
+      href="https://paypal.me/joshbe2802"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-semibold transition-colors"
+    >
+      ☕ Support on PayPal
+    </a>
+    <p className="text-gray-700 text-xs mt-3">paypal.me/joshbe2802</p>
+  </div>
+);
+
 // ==================== LOBBY SCREEN ====================
 const LobbyScreen = ({ onCreateSession, onJoinSession }) => {
   const [joinCode, setJoinCode] = useState('');
@@ -476,6 +492,7 @@ const LobbyScreen = ({ onCreateSession, onJoinSession }) => {
             </Button>
           </Card>
         </div>
+        <Footer />
       </div>
     </div>
   );
@@ -616,10 +633,10 @@ className="w-full bg-gray-700 text-white rounded-lg p-2 border border-gray-600"
 </div>
               )}
 </div>
-<div className="flex items-center gap-3">
+<div className="flex items-center flex-wrap gap-3">
 <button
 onClick={() => setHardMode(!hardMode)}
-className={`w-12 h-6 rounded-full transition-colors ${hardMode ? 'bg-red-600' : 'bg-gray-600'}`}
+className={`w-12 h-6 shrink-0 rounded-full transition-colors ${hardMode ? 'bg-red-600' : 'bg-gray-600'}`}
 >
 <div className={`w-5 h-5 bg-white rounded-full transition-transform ${hardMode ? 'translate-x-6' : 'translate-x-0.5'}`}></div>
 </button>
@@ -635,24 +652,26 @@ className={`w-12 h-6 rounded-full transition-colors ${hardMode ? 'bg-red-600' : 
 </h2>
 <div className="space-y-4">
 {players.map((player) => (
-<div key={player.id} className="flex gap-3 items-center">
-<div className={`w-4 h-4 rounded-full ${player.color}`}></div>
-<input
-type="text"
-value={player.name}
-onChange={(e) => updatePlayer(player.id, 'name', e.target.value)}
-className="flex-1 bg-gray-700 text-white rounded-lg p-2 border border-gray-600"
-placeholder="Player name"
-/>
-<select
-value={player.faction}
-onChange={(e) => updatePlayer(player.id, 'faction', e.target.value)}
-className="flex-1 bg-gray-700 text-white rounded-lg p-2 border border-gray-600"
->
-{FACTIONS.map(f => (
-<option key={f} value={f}>{f}</option>
-                  ))}
-</select>
+<div key={player.id} className="flex flex-col gap-2">
+  <div className="flex items-center gap-3">
+    <div className={`w-4 h-4 shrink-0 rounded-full ${player.color}`}></div>
+    <input
+      type="text"
+      value={player.name}
+      onChange={(e) => updatePlayer(player.id, 'name', e.target.value)}
+      className="flex-1 min-w-0 bg-gray-700 text-white rounded-lg p-2 border border-gray-600"
+      placeholder="Player name"
+    />
+  </div>
+  <select
+    value={player.faction}
+    onChange={(e) => updatePlayer(player.id, 'faction', e.target.value)}
+    className="w-full bg-gray-700 text-white rounded-lg p-2 border border-gray-600"
+  >
+    {FACTIONS.map(f => (
+      <option key={f} value={f}>{f}</option>
+    ))}
+  </select>
 </div>
             ))}
 </div>
@@ -661,6 +680,7 @@ className="flex-1 bg-gray-700 text-white rounded-lg p-2 border border-gray-600"
 <Play size={24} />
           Start Game
 </Button>
+<Footer />
 </div>
 </div>
   );
@@ -781,13 +801,13 @@ return (
                 'bg-gray-700 text-white hover:bg-gray-600'
               }`}
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className={`w-3 h-3 rounded-full ${player.color}`}></div>
-                  <span className="font-bold">{player.name}</span>
-                  <span className="text-sm opacity-70">{player.faction}</span>
+              <div className="flex items-center justify-between gap-2 min-w-0">
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className={`w-3 h-3 shrink-0 rounded-full ${player.color}`}></div>
+                  <span className="font-bold truncate">{player.name}</span>
+                  <span className="text-sm opacity-70 truncate">{player.faction}</span>
                 </div>
-                {status === 'taken' && <span className="text-xs text-gray-500">Taken</span>}
+                {status === 'taken' && <span className="text-xs text-gray-500 shrink-0">Taken</span>}
               </div>
             </button>
           );
@@ -805,10 +825,10 @@ return (
 
 {/* Header */}
 <div className="bg-gray-800 border-b border-gray-700 p-4">
-<div className="max-w-4xl mx-auto flex items-center justify-between">
-<div>
+<div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
+<div className="min-w-0">
 <h1 className="text-2xl font-bold text-purple-400">HORDE MODE</h1>
-<p className="text-gray-400 text-sm">vs {hordeFaction} {hardMode && '• HARD MODE'} • <span className="font-mono text-purple-300">{sessionCode}</span></p>
+<p className="text-gray-400 text-sm truncate">vs {hordeFaction} {hardMode && '• HARD MODE'} • <span className="font-mono text-purple-300">{sessionCode}</span></p>
 </div>
 <div className="flex items-center gap-4">
 <div className="text-center">
@@ -930,11 +950,11 @@ onUpdateCP={(id, delta) => updatePlayer(id, 'cp', delta)}
   const canSeeSecret = isMe || player.secretRevealed;
   return (
 <Card key={player.id} className="p-4">
-<div className="flex items-center gap-3 mb-4">
-<div className={`w-4 h-4 rounded-full ${player.color}`}></div>
-<h3 className="text-xl font-bold text-white">{player.name}</h3>
-<span className="text-gray-400 text-sm">{player.faction}</span>
-{isMe && <span className="ml-auto px-2 py-0.5 bg-purple-800 text-purple-200 rounded text-xs">You</span>}
+<div className="flex items-center gap-3 mb-4 min-w-0">
+<div className={`w-4 h-4 shrink-0 rounded-full ${player.color}`}></div>
+<h3 className="text-xl font-bold text-white truncate">{player.name}</h3>
+<span className="text-gray-400 text-sm truncate">{player.faction}</span>
+{isMe && <span className="ml-auto shrink-0 px-2 py-0.5 bg-purple-800 text-purple-200 rounded text-xs">You</span>}
 </div>
 <div className="grid grid-cols-2 gap-4 mb-4">
 <div className="bg-gray-900 rounded-lg p-4">
@@ -1073,10 +1093,10 @@ selectedPlayer === p.id
 : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
 }`}
 >
-<div className="flex items-center justify-center gap-2">
-<div className={`w-3 h-3 rounded-full ${p.color}`}></div>
-<span className="text-sm">{p.name}</span>
-<span className="text-yellow-400 font-bold">{p.sp}SP</span>
+<div className="flex items-center justify-center gap-1.5 min-w-0">
+<div className={`w-3 h-3 shrink-0 rounded-full ${p.color}`}></div>
+<span className="text-sm truncate">{p.name}</span>
+<span className="text-yellow-400 font-bold shrink-0">{p.sp}SP</span>
 </div>
 </button>
                 ))}
@@ -1124,6 +1144,7 @@ updatePlayer(selectedPlayer, 'sp', -option.cost);
 </div>
 </div>
         )}
+<Footer />
 </div>
 </div>
   );
