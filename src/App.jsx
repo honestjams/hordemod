@@ -1,5 +1,21 @@
-import React, { useState, useCallback, useMemo } from 'react';
-import { Skull, Users, Swords, Shield, Zap, ChevronRight, ChevronLeft, RotateCcw, Plus, Minus, Dices, AlertTriangle, Trophy, X, Settings, Play, Eye, EyeOff } from 'lucide-react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { Skull, Users, Swords, Shield, Zap, ChevronRight, ChevronLeft, RotateCcw, Plus, Minus, Dices, AlertTriangle, Trophy, X, Settings, Play, Eye, EyeOff, LogOut } from 'lucide-react';
+import { initializeApp } from 'firebase/app';
+import { getDatabase, ref, set, onValue, update, get } from 'firebase/database';
+
+// ==================== FIREBASE ====================
+const firebaseConfig = {
+  apiKey: "AIzaSyAxNrnadFwBriZhwpLBdszENbU9j7XTde4",
+  authDomain: "hordmod-3de14.firebaseapp.com",
+  databaseURL: "https://hordmod-3de14-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "hordmod-3de14",
+  storageBucket: "hordmod-3de14.firebasestorage.app",
+  messagingSenderId: "783226109508",
+  appId: "1:783226109508:web:22f1def2c0d6b20e1f8611",
+};
+const firebaseApp = initializeApp(firebaseConfig);
+const db = getDatabase(firebaseApp);
+
 // ==================== GAME DATA ====================
 const FACTIONS = [
 'Space Marines', 'Adepta Sororitas', 'Adeptus Mechanicus', 'Adeptus Custodes',
@@ -141,6 +157,7 @@ const RESUPPLY_OPTIONS = [
   { cost: 8, name: 'Artillery Strike', effect: '9" radius, D6 per model: 5+ = 1MW (3MW for Monster/Vehicle).', tags: ['Strike'] },
   { cost: 12, name: 'Reinforcements Arrive', effect: 'Roll 2D6, spawn unit from your Spawning Table.', tags: ['Spawn'] }
 ];
+
 // ==================== HELPER FUNCTIONS ====================
 const shuffle = (array) => {
 const newArray = [...array];
@@ -152,6 +169,21 @@ return newArray;
 };
 const rollD6 = () => Math.floor(Math.random() * 6) + 1;
 const roll2D6 = () => rollD6() + rollD6();
+
+const getDeviceId = () => {
+  let id = localStorage.getItem('hm_device_id');
+  if (!id) {
+    id = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    localStorage.setItem('hm_device_id', id);
+  }
+  return id;
+};
+
+const generateCode = () => {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  return Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+};
+
 // ==================== COMPONENTS ====================
 const Card = ({ children, className = '', onClick }) => (
 <div
@@ -185,14 +217,15 @@ className={`${baseClasses} ${sizeClasses[size]} ${variantClasses[variant]} ${dis
 </button>
   );
 };
-const PlayerCard = ({ player, onUpdateSP, onUpdateCP, isActive }) => (
+
+const PlayerCard = ({ player, onUpdateSP, onUpdateCP, isActive, isMyPlayer }) => (
 <Card className={`p-4 ${isActive ? 'ring-2 ring-purple-500' : ''}`}>
-<div className="flex items-center justify-between mb-3">
-<div className="flex items-center gap-2">
-<div className={`w-3 h-3 rounded-full ${player.color}`}></div>
-<span className="font-bold text-white">{player.name}</span>
+<div className="flex items-center justify-between gap-2 mb-3 min-w-0">
+<div className="flex items-center gap-2 min-w-0">
+<div className={`w-3 h-3 shrink-0 rounded-full ${player.color}`}></div>
+<span className="font-bold text-white truncate">{player.name}</span>
 </div>
-<span className="text-xs text-gray-400">{player.faction}</span>
+<span className="text-xs text-gray-400 truncate shrink-0 max-w-[45%]">{player.faction}</span>
 </div>
 <div className="grid grid-cols-2 gap-3">
 <div className="bg-gray-900 rounded-lg p-2">
@@ -230,11 +263,15 @@ const PlayerCard = ({ player, onUpdateSP, onUpdateCP, isActive }) => (
 <span className="text-purple-300 text-xs">Secret Objective</span>
 {player.secretRevealed ? <Eye size={12} className="text-purple-400" /> : <EyeOff size={12} className="text-gray-500" />}
 </div>
-<span className="text-white text-sm font-medium">{player.secretObjective.name}</span>
+{(isMyPlayer || player.secretRevealed)
+  ? <span className="text-white text-sm font-medium">{player.secretObjective.name}</span>
+  : <span className="text-gray-500 text-sm italic">Private</span>
+}
 </div>
     )}
 </Card>
 );
+
 const MiseryCard = ({ card, onClose }) => (
 <Card className="p-4 bg-gradient-to-br from-red-900/50 to-gray-800 border-red-700">
 <div className="flex items-start justify-between mb-2">
@@ -252,6 +289,7 @@ const MiseryCard = ({ card, onClose }) => (
 <p className="text-gray-300 text-sm">{card.effect}</p>
 </Card>
 );
+
 const SecondaryCard = ({ mission, status, onComplete, onFail }) => (
 <Card className={`p-4 ${status === 'success' ? 'border-green-600' : status === 'failed' ? 'border-red-600' : 'border-yellow-600'}`}>
 <div className="flex items-start justify-between mb-2">
@@ -280,6 +318,7 @@ const SecondaryCard = ({ mission, status, onComplete, onFail }) => (
     )}
 </Card>
 );
+
 const SpawnRoller = ({ round, spawnModifier, hardMode, onRoll }) => {
 const [result, setResult] = useState(null);
 const [rolling, setRolling] = useState(false);
@@ -360,8 +399,122 @@ return (
 </Card>
   );
 };
+
+// ==================== FOOTER ====================
+const Footer = () => (
+  <div className="py-6 px-4 text-center border-t border-gray-800 mt-8">
+    <p className="text-gray-500 text-sm mb-3">If you're enjoying Horde Mode Companion, consider buying me a coffee!</p>
+    <a
+      href="https://paypal.me/joshbe2802"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-semibold transition-colors"
+    >
+      ☕ Support on PayPal
+    </a>
+    <p className="text-gray-700 text-xs mt-3">paypal.me/joshbe2802</p>
+  </div>
+);
+
+// ==================== LOBBY SCREEN ====================
+const LobbyScreen = ({ onCreateSession, onJoinSession }) => {
+  const [joinCode, setJoinCode] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleJoin = async () => {
+    const code = joinCode.trim().toUpperCase();
+    setError('');
+    setLoading(true);
+    try {
+      const snapshot = await get(ref(db, `sessions/${code}`));
+      if (!snapshot.exists()) {
+        setError('Session not found. Check the code and try again.');
+        setLoading(false);
+        return;
+      }
+      const data = snapshot.val();
+      if (data.phase === 'ended') {
+        setError('This session has already ended.');
+        setLoading(false);
+        return;
+      }
+      onJoinSession(code, data);
+    } catch (e) {
+      setError('Connection error. Please check your connection and try again.');
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-900 p-4 flex items-center justify-center">
+      <div className="max-w-sm w-full">
+        <div className="text-center mb-8">
+          <Skull className="text-red-500 mx-auto mb-3" size={48} />
+          <h1 className="text-4xl font-bold text-purple-400 mb-2">HORDE MODE</h1>
+          <p className="text-gray-400">40K Cooperative Game Mode Companion</p>
+        </div>
+        <div className="space-y-4">
+          <Card className="p-6">
+            <h2 className="text-white font-bold text-lg mb-1">Host a Game</h2>
+            <p className="text-gray-400 text-sm mb-4">Create a session and share the code with your players</p>
+            <Button onClick={onCreateSession} className="w-full" size="lg">
+              <Play size={18} />
+              Create Session
+            </Button>
+          </Card>
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-px bg-gray-700"></div>
+            <span className="text-gray-500 text-sm">or</span>
+            <div className="flex-1 h-px bg-gray-700"></div>
+          </div>
+          <Card className="p-6">
+            <h2 className="text-white font-bold text-lg mb-1">Join a Game</h2>
+            <p className="text-gray-400 text-sm mb-4">Enter the 4-letter code from your host</p>
+            <input
+              type="text"
+              value={joinCode}
+              onChange={e => setJoinCode(e.target.value.toUpperCase())}
+              onKeyDown={e => e.key === 'Enter' && joinCode.length === 4 && handleJoin()}
+              maxLength={4}
+              placeholder="ABCD"
+              className="w-full bg-gray-700 text-white text-3xl text-center font-mono tracking-widest rounded-lg p-3 border border-gray-600 mb-3 uppercase focus:outline-none focus:border-purple-500"
+            />
+            {error && <p className="text-red-400 text-sm mb-3">{error}</p>}
+            <Button
+              onClick={handleJoin}
+              disabled={loading || joinCode.length < 4}
+              className="w-full"
+              size="lg"
+              variant="secondary"
+            >
+              {loading ? 'Connecting...' : 'Join Session'}
+            </Button>
+          </Card>
+        </div>
+        <Footer />
+      </div>
+    </div>
+  );
+};
+
+// ==================== WAITING SCREEN ====================
+const WaitingScreen = ({ sessionCode }) => (
+  <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
+    <div className="text-center max-w-sm">
+      <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
+      <h2 className="text-2xl font-bold text-white mb-2">Waiting for Host</h2>
+      <p className="text-gray-400 mb-6">The host is setting up the game...</p>
+      <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
+        <p className="text-gray-400 text-sm mb-1">Session Code</p>
+        <p className="text-4xl font-mono font-bold text-purple-400 tracking-widest">{sessionCode}</p>
+      </div>
+    </div>
+  </div>
+);
+
 // ==================== SETUP SCREEN ====================
-const SetupScreen = ({ onStartGame }) => {
+const SetupScreen = ({ onStartGame, sessionCode }) => {
 const [gameSize, setGameSize] = useState(1000);
 const [playerCount, setPlayerCount] = useState(2);
 const [hardMode, setHardMode] = useState(false);
@@ -394,7 +547,7 @@ const playersWithSecrets = players.map((p, i) => ({
 ...p,
 sp: 0,
 cp: 2,
-secretObjective: shuffledSecrets[i * 2], // Deal 1 for now (should be pick from 2)
+secretObjective: shuffledSecrets[i * 2],
 secretRevealed: false
     }));
 onStartGame({
@@ -409,10 +562,16 @@ pointsPerPlayer
 return (
 <div className="min-h-screen bg-gray-900 p-4">
 <div className="max-w-2xl mx-auto">
-<div className="text-center mb-8">
+<div className="text-center mb-6">
 <h1 className="text-4xl font-bold text-purple-400 mb-2">HORDE MODE</h1>
 <p className="text-gray-400">40K Cooperative Game Mode Companion</p>
 </div>
+{sessionCode && (
+  <div className="bg-gray-800 rounded-xl p-4 mb-6 text-center border-2 border-purple-600">
+    <p className="text-gray-400 text-sm mb-1">Session Code — share with other players</p>
+    <p className="text-5xl font-mono font-bold text-purple-400 tracking-widest">{sessionCode}</p>
+  </div>
+)}
 <Card className="p-6 mb-6">
 <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
 <Settings size={24} className="text-purple-400" />
@@ -474,10 +633,10 @@ className="w-full bg-gray-700 text-white rounded-lg p-2 border border-gray-600"
 </div>
               )}
 </div>
-<div className="flex items-center gap-3">
+<div className="flex items-center flex-wrap gap-3">
 <button
 onClick={() => setHardMode(!hardMode)}
-className={`w-12 h-6 rounded-full transition-colors ${hardMode ? 'bg-red-600' : 'bg-gray-600'}`}
+className={`w-12 h-6 shrink-0 rounded-full transition-colors ${hardMode ? 'bg-red-600' : 'bg-gray-600'}`}
 >
 <div className={`w-5 h-5 bg-white rounded-full transition-transform ${hardMode ? 'translate-x-6' : 'translate-x-0.5'}`}></div>
 </button>
@@ -493,24 +652,26 @@ className={`w-12 h-6 rounded-full transition-colors ${hardMode ? 'bg-red-600' : 
 </h2>
 <div className="space-y-4">
 {players.map((player) => (
-<div key={player.id} className="flex gap-3 items-center">
-<div className={`w-4 h-4 rounded-full ${player.color}`}></div>
-<input
-type="text"
-value={player.name}
-onChange={(e) => updatePlayer(player.id, 'name', e.target.value)}
-className="flex-1 bg-gray-700 text-white rounded-lg p-2 border border-gray-600"
-placeholder="Player name"
-/>
-<select
-value={player.faction}
-onChange={(e) => updatePlayer(player.id, 'faction', e.target.value)}
-className="flex-1 bg-gray-700 text-white rounded-lg p-2 border border-gray-600"
->
-{FACTIONS.map(f => (
-<option key={f} value={f}>{f}</option>
-                  ))}
-</select>
+<div key={player.id} className="flex flex-col gap-2">
+  <div className="flex items-center gap-3">
+    <div className={`w-4 h-4 shrink-0 rounded-full ${player.color}`}></div>
+    <input
+      type="text"
+      value={player.name}
+      onChange={(e) => updatePlayer(player.id, 'name', e.target.value)}
+      className="flex-1 min-w-0 bg-gray-700 text-white rounded-lg p-2 border border-gray-600"
+      placeholder="Player name"
+    />
+  </div>
+  <select
+    value={player.faction}
+    onChange={(e) => updatePlayer(player.id, 'faction', e.target.value)}
+    className="w-full bg-gray-700 text-white rounded-lg p-2 border border-gray-600"
+  >
+    {FACTIONS.map(f => (
+      <option key={f} value={f}>{f}</option>
+    ))}
+  </select>
 </div>
             ))}
 </div>
@@ -519,15 +680,17 @@ className="flex-1 bg-gray-700 text-white rounded-lg p-2 border border-gray-600"
 <Play size={24} />
           Start Game
 </Button>
+<Footer />
 </div>
 </div>
   );
 };
+
 // ==================== GAME SCREEN ====================
-const GameScreen = ({ gameState, onUpdateState, onEndGame }) => {
+const GameScreen = ({ gameState, onUpdateState, onExitGame, myPlayerId, sessionCode, playerDeviceMap, onClaimSlot, deviceId }) => {
 const [activeTab, setActiveTab] = useState('round');
-const [showResupply, setShowResupply] = useState(false);
 const [selectedPlayer, setSelectedPlayer] = useState(gameState.players[0]?.id);
+const [confirmExit, setConfirmExit] = useState(false);
 const { round, players, hardMode, hordeFaction, activeMiseryCards, activeSecondary, spawnModifier, miseryDeck, secondaryDeck } = gameState;
 const maxRounds = hardMode ? 6 : 5;
 const getMiseryCount = () => {
@@ -586,7 +749,7 @@ activeSecondary: { ...activeSecondary, status: 'failed' }
   };
 const nextRound = () => {
 if (round >= maxRounds) {
-onEndGame();
+onExitGame();
 return;
     }
 onUpdateState({
@@ -603,23 +766,86 @@ onUpdateState({
 spawnModifier: spawnModifier + value
     });
   };
+
+// Claim slot overlay — shown until this device picks a player
+const showClaimOverlay = myPlayerId === null;
+const getSlotStatus = (playerId) => {
+  const claimedBy = playerDeviceMap[playerId];
+  if (!claimedBy) return 'available';
+  if (claimedBy === deviceId) return 'mine';
+  return 'taken';
+};
+
 return (
 <div className="min-h-screen bg-gray-900">
+{/* Claim Slot Overlay */}
+{showClaimOverlay && (
+  <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <Card className="p-6 max-w-sm w-full">
+      <div className="flex items-center gap-2 mb-2">
+        <Users className="text-purple-400" size={24} />
+        <h2 className="text-xl font-bold text-white">Who are you?</h2>
+      </div>
+      <p className="text-gray-400 text-sm mb-4">Select your player slot to track your resources and see your secret objective</p>
+      <div className="space-y-2">
+        {players.map(player => {
+          const status = getSlotStatus(player.id);
+          return (
+            <button
+              key={player.id}
+              onClick={() => status !== 'taken' && onClaimSlot(player.id)}
+              disabled={status === 'taken'}
+              className={`w-full p-3 rounded-lg text-left transition-colors ${
+                status === 'mine' ? 'bg-purple-600 text-white' :
+                status === 'taken' ? 'bg-gray-700 text-gray-500 cursor-not-allowed' :
+                'bg-gray-700 text-white hover:bg-gray-600'
+              }`}
+            >
+              <div className="flex items-center justify-between gap-2 min-w-0">
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className={`w-3 h-3 shrink-0 rounded-full ${player.color}`}></div>
+                  <span className="font-bold truncate">{player.name}</span>
+                  <span className="text-sm opacity-70 truncate">{player.faction}</span>
+                </div>
+                {status === 'taken' && <span className="text-xs text-gray-500 shrink-0">Taken</span>}
+              </div>
+            </button>
+          );
+        })}
+        <button
+          onClick={() => onClaimSlot(-1)}
+          className="w-full p-3 rounded-lg text-left bg-gray-800 text-gray-400 hover:bg-gray-700 transition-colors border border-gray-700"
+        >
+          <span className="text-sm">Watch only (no player slot)</span>
+        </button>
+      </div>
+    </Card>
+  </div>
+)}
+
 {/* Header */}
 <div className="bg-gray-800 border-b border-gray-700 p-4">
-<div className="max-w-4xl mx-auto flex items-center justify-between">
-<div>
+<div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
+<div className="min-w-0">
 <h1 className="text-2xl font-bold text-purple-400">HORDE MODE</h1>
-<p className="text-gray-400 text-sm">vs {hordeFaction} {hardMode && '• HARD MODE'}</p>
+<p className="text-gray-400 text-sm truncate">vs {hordeFaction} {hardMode && '• HARD MODE'} • <span className="font-mono text-purple-300">{sessionCode}</span></p>
 </div>
 <div className="flex items-center gap-4">
 <div className="text-center">
 <div className="text-3xl font-bold text-white">{round}</div>
 <div className="text-xs text-gray-400">ROUND</div>
 </div>
-<Button variant="ghost" onClick={onEndGame}>
-<X size={20} />
-</Button>
+{!confirmExit ? (
+  <Button variant="ghost" onClick={() => setConfirmExit(true)}>
+    <LogOut size={20} />
+  </Button>
+) : (
+  <div className="flex items-center gap-2">
+    <span className="text-yellow-400 text-xs">End for all?</span>
+    <Button variant="danger" size="sm" onClick={onExitGame}>Yes</Button>
+    <Button variant="ghost" size="sm" onClick={() => setConfirmExit(false)}>No</Button>
+  </div>
+)}
 </div>
 </div>
 </div>
@@ -709,6 +935,7 @@ onFail={failSecondary}
 key={player.id}
 player={player}
 isActive={player.id === selectedPlayer}
+isMyPlayer={player.id === myPlayerId}
 onUpdateSP={(id, delta) => updatePlayer(id, 'sp', delta)}
 onUpdateCP={(id, delta) => updatePlayer(id, 'cp', delta)}
 />
@@ -718,12 +945,16 @@ onUpdateCP={(id, delta) => updatePlayer(id, 'cp', delta)}
         )}
 {activeTab === 'players' && (
 <div className="space-y-4">
-{players.map(player => (
+{players.map(player => {
+  const isMe = player.id === myPlayerId;
+  const canSeeSecret = isMe || player.secretRevealed;
+  return (
 <Card key={player.id} className="p-4">
-<div className="flex items-center gap-3 mb-4">
-<div className={`w-4 h-4 rounded-full ${player.color}`}></div>
-<h3 className="text-xl font-bold text-white">{player.name}</h3>
-<span className="text-gray-400 text-sm">{player.faction}</span>
+<div className="flex items-center gap-3 mb-4 min-w-0">
+<div className={`w-4 h-4 shrink-0 rounded-full ${player.color}`}></div>
+<h3 className="text-xl font-bold text-white truncate">{player.name}</h3>
+<span className="text-gray-400 text-sm truncate">{player.faction}</span>
+{isMe && <span className="ml-auto shrink-0 px-2 py-0.5 bg-purple-800 text-purple-200 rounded text-xs">You</span>}
 </div>
 <div className="grid grid-cols-2 gap-4 mb-4">
 <div className="bg-gray-900 rounded-lg p-4">
@@ -759,19 +990,21 @@ onUpdateCP={(id, delta) => updatePlayer(id, 'cp', delta)}
 <div className="p-4 bg-purple-900/30 rounded-lg border border-purple-700">
 <div className="flex items-center justify-between mb-2">
 <span className="text-purple-400 font-bold">Secret Objective</span>
-<button
-onClick={() => {
-const newPlayers = players.map(p =>
-p.id === player.id ? { ...p, secretRevealed: !p.secretRevealed } : p
-                          );
-onUpdateState({ ...gameState, players: newPlayers });
-                        }}
-className="text-purple-400 hover:text-purple-300"
->
-{player.secretRevealed ? <Eye size={18} /> : <EyeOff size={18} />}
-</button>
+{isMe && (
+  <button
+    onClick={() => {
+      const newPlayers = players.map(p =>
+        p.id === player.id ? { ...p, secretRevealed: !p.secretRevealed } : p
+      );
+      onUpdateState({ ...gameState, players: newPlayers });
+    }}
+    className="text-purple-400 hover:text-purple-300"
+  >
+    {player.secretRevealed ? <Eye size={18} /> : <EyeOff size={18} />}
+  </button>
+)}
 </div>
-{player.secretRevealed ? (
+{canSeeSecret ? (
 <>
 <h4 className="text-white font-bold mb-2">{player.secretObjective.name}</h4>
 <p className="text-gray-300 text-sm mb-2">{player.secretObjective.condition}</p>
@@ -782,14 +1015,18 @@ className="text-purple-400 hover:text-purple-300"
 </span>
                           ))}
 </div>
+{isMe && !player.secretRevealed && (
+  <p className="text-purple-400 text-xs mt-2 italic">Tap the eye icon to reveal to all players</p>
+)}
 </>
-                    ) : (
-<p className="text-gray-400 italic">Tap eye to reveal</p>
-                    )}
+) : (
+<p className="text-gray-400 italic">Private objective</p>
+)}
 </div>
                 )}
 </Card>
-            ))}
+  );
+})}
 </div>
         )}
 {activeTab === 'spawn' && (
@@ -856,10 +1093,10 @@ selectedPlayer === p.id
 : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
 }`}
 >
-<div className="flex items-center justify-center gap-2">
-<div className={`w-3 h-3 rounded-full ${p.color}`}></div>
-<span className="text-sm">{p.name}</span>
-<span className="text-yellow-400 font-bold">{p.sp}SP</span>
+<div className="flex items-center justify-center gap-1.5 min-w-0">
+<div className={`w-3 h-3 shrink-0 rounded-full ${p.color}`}></div>
+<span className="text-sm truncate">{p.name}</span>
+<span className="text-yellow-400 font-bold shrink-0">{p.sp}SP</span>
 </div>
 </button>
                 ))}
@@ -907,39 +1144,162 @@ updatePlayer(selectedPlayer, 'sp', -option.cost);
 </div>
 </div>
         )}
+<Footer />
 </div>
 </div>
   );
 };
+
 // ==================== MAIN APP ====================
 export default function HordeModeApp() {
-const [gamePhase, setGamePhase] = useState('setup');
-const [gameState, setGameState] = useState(null);
-const startGame = (setupData) => {
-setGameState({
-...setupData,
-round: 1,
-activeMiseryCards: [],
-activeSecondary: null,
-spawnModifier: 0,
-miseryDeck: shuffle(MISERY_CARDS),
-secondaryDeck: shuffle(SECONDARY_MISSIONS),
-secondariesCompleted: 0
+  const deviceId = useMemo(() => getDeviceId(), []);
+  const [phase, setPhase] = useState('lobby');
+  const [sessionCode, setSessionCode] = useState(null);
+  const [isHost, setIsHost] = useState(false);
+  const [myPlayerId, setMyPlayerId] = useState(null);
+  const [gameState, setGameState] = useState(null);
+  const [playerDeviceMap, setPlayerDeviceMap] = useState({});
+
+  // Subscribe to Firebase session updates
+  useEffect(() => {
+    if (!sessionCode) return;
+    const sessionRef = ref(db, `sessions/${sessionCode}`);
+    const unsubscribe = onValue(sessionRef, (snapshot) => {
+      const data = snapshot.val();
+      if (!data) return;
+
+      if (data.gameStateJson) {
+        try {
+          setGameState(JSON.parse(data.gameStateJson));
+        } catch (e) {
+          console.error('Failed to parse game state:', e);
+        }
+      }
+
+      if (data.playerDeviceMap) {
+        setPlayerDeviceMap(data.playerDeviceMap);
+        // Auto-restore claimed slot on reconnect
+        setMyPlayerId(prev => {
+          if (prev !== null) return prev;
+          const savedId = localStorage.getItem(`hm_player_${sessionCode}`);
+          if (savedId && data.playerDeviceMap[savedId] === deviceId) {
+            return Number(savedId);
+          }
+          return prev;
+        });
+      }
+
+      if (data.phase === 'game') {
+        setPhase('game');
+      } else if (data.phase === 'ended') {
+        setPhase('lobby');
+        setSessionCode(null);
+        setIsHost(false);
+        setMyPlayerId(null);
+        setGameState(null);
+        setPlayerDeviceMap({});
+      }
     });
-setGamePhase('game');
+    return () => unsubscribe();
+  }, [sessionCode, deviceId]);
+
+  const createSession = async () => {
+    const code = generateCode();
+    await set(ref(db, `sessions/${code}`), {
+      hostDeviceId: deviceId,
+      phase: 'setup',
+      gameStateJson: null,
+      playerDeviceMap: {},
+    });
+    setSessionCode(code);
+    setIsHost(true);
+    setPhase('setup');
   };
-const endGame = () => {
-setGamePhase('setup');
-setGameState(null);
+
+  const joinSession = (code, data) => {
+    setSessionCode(code);
+    setIsHost(false);
+    if (data.playerDeviceMap) setPlayerDeviceMap(data.playerDeviceMap);
+    if (data.phase === 'game') {
+      if (data.gameStateJson) {
+        try { setGameState(JSON.parse(data.gameStateJson)); } catch (e) {}
+      }
+      const savedId = localStorage.getItem(`hm_player_${code}`);
+      if (savedId && data.playerDeviceMap?.[savedId] === deviceId) {
+        setMyPlayerId(Number(savedId));
+      }
+      setPhase('game');
+    } else {
+      setPhase('waiting');
+    }
   };
-if (gamePhase === 'setup') {
-return <SetupScreen onStartGame={startGame} />;
+
+  const startGame = (setupData) => {
+    const gs = {
+      ...setupData,
+      round: 1,
+      activeMiseryCards: [],
+      activeSecondary: null,
+      spawnModifier: 0,
+      miseryDeck: shuffle(MISERY_CARDS),
+      secondaryDeck: shuffle(SECONDARY_MISSIONS),
+      secondariesCompleted: 0,
+    };
+    set(ref(db, `sessions/${sessionCode}`), {
+      hostDeviceId: deviceId,
+      phase: 'game',
+      gameStateJson: JSON.stringify(gs),
+      playerDeviceMap: {},
+    });
+    setGameState(gs);
+    setPlayerDeviceMap({});
+    setMyPlayerId(null);
+    setPhase('game');
+  };
+
+  const updateGameState = (newState) => {
+    setGameState(newState);
+    set(ref(db, `sessions/${sessionCode}/gameStateJson`), JSON.stringify(newState));
+  };
+
+  const claimPlayerSlot = (playerId) => {
+    setMyPlayerId(playerId);
+    if (playerId !== -1) {
+      localStorage.setItem(`hm_player_${sessionCode}`, playerId);
+      update(ref(db, `sessions/${sessionCode}/playerDeviceMap`), { [playerId]: deviceId });
+    }
+  };
+
+  const exitGame = () => {
+    set(ref(db, `sessions/${sessionCode}/phase`), 'ended');
+    setPhase('lobby');
+    setSessionCode(null);
+    setIsHost(false);
+    setMyPlayerId(null);
+    setGameState(null);
+    setPlayerDeviceMap({});
+  };
+
+  if (phase === 'lobby') {
+    return <LobbyScreen onCreateSession={createSession} onJoinSession={joinSession} />;
   }
-return (
-<GameScreen
-gameState={gameState}
-onUpdateState={setGameState}
-onEndGame={endGame}
-/>
+  if (phase === 'setup') {
+    return <SetupScreen sessionCode={sessionCode} onStartGame={startGame} />;
+  }
+  if (phase === 'waiting') {
+    return <WaitingScreen sessionCode={sessionCode} />;
+  }
+  return (
+    <GameScreen
+      gameState={gameState}
+      myPlayerId={myPlayerId}
+      sessionCode={sessionCode}
+      playerDeviceMap={playerDeviceMap}
+      isHost={isHost}
+      deviceId={deviceId}
+      onUpdateState={updateGameState}
+      onClaimSlot={claimPlayerSlot}
+      onExitGame={exitGame}
+    />
   );
 }
