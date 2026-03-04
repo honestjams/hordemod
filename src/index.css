@@ -1,3 +1,143 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ── Gothic 40K Dark Theme ───────────────────────────────────── */
+
+/* Atmospheric background with red/purple gradients */
+body {
+  background-color: #09090f;
+  background-image:
+    radial-gradient(ellipse at 15% 60%, rgba(120, 0, 0, 0.09) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 20%, rgba(60, 0, 100, 0.07) 0%, transparent 55%);
+  min-height: 100vh;
+}
+
+/* ── Typography ─────────────────────────────────────────────── */
+.gothic-heading {
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.gothic-subheading {
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.12em;
+}
+.gothic-decorative {
+  font-family: 'Cinzel Decorative', serif;
+}
+
+/* ── Card Styles ─────────────────────────────────────────────── */
+
+/* Inner gold border inset — gives a "framed document" feel */
+.gothic-card {
+  position: relative;
+}
+.gothic-card::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border: 1px solid rgba(201, 168, 76, 0.06);
+  pointer-events: none;
+  border-radius: 4px;
+}
+
+/* Misery card: dark blood red gradient */
+.misery-card-bg {
+  background: linear-gradient(135deg, rgba(100, 0, 0, 0.35) 0%, rgba(20, 5, 5, 0.7) 100%);
+}
+
+/* ── Border Accents ──────────────────────────────────────────── */
+.gold-border-top {
+  border-top: 1px solid rgba(201, 168, 76, 0.4);
+}
+.blood-border {
+  border: 1px solid rgba(160, 0, 0, 0.45);
+  box-shadow: inset 0 0 20px rgba(160, 0, 0, 0.04);
+}
+.imperial-border {
+  border: 1px solid rgba(201, 168, 76, 0.2);
+}
+
+/* ── Glow Effects ────────────────────────────────────────────── */
+.gold-glow {
+  text-shadow: 0 0 12px rgba(201, 168, 76, 0.5), 0 0 30px rgba(201, 168, 76, 0.15);
+}
+.blood-glow {
+  text-shadow: 0 0 12px rgba(200, 0, 0, 0.7), 0 0 30px rgba(200, 0, 0, 0.2);
+}
+
+/* ── Animations ──────────────────────────────────────────────── */
+
+/* Gold shimmer for the main title */
+@keyframes goldShimmer {
+  0%, 100% { text-shadow: 0 0 10px rgba(201, 168, 76, 0.3); }
+  50%       { text-shadow: 0 0 25px rgba(201, 168, 76, 0.7), 0 0 50px rgba(201, 168, 76, 0.2); }
+}
+.gold-shimmer { animation: goldShimmer 4s ease-in-out infinite; }
+
+/* Spawn result danger pulse */
+@keyframes spawnPulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(139, 0, 0, 0.25), inset 0 0 20px rgba(139, 0, 0, 0.05); }
+  50%       { box-shadow: 0 0 25px rgba(139, 0, 0, 0.55), inset 0 0 40px rgba(139, 0, 0, 0.1); }
+}
+.spawn-pulse { animation: spawnPulse 2s ease-in-out infinite; }
+
+/* No-spawn quiet flicker */
+@keyframes dimPulse {
+  0%, 100% { opacity: 0.7; }
+  50%       { opacity: 1; }
+}
+.dim-pulse { animation: dimPulse 3s ease-in-out infinite; }
+
+/* Dice rolling animation */
+@keyframes diceRoll {
+  0%   { transform: rotate(0deg) scale(1); }
+  25%  { transform: rotate(90deg) scale(0.85); }
+  50%  { transform: rotate(180deg) scale(1.1); }
+  75%  { transform: rotate(270deg) scale(0.85); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+.dice-rolling { animation: diceRoll 0.5s linear; }
+
+/* Faction icon drop-shadow glow */
+.faction-icon { transition: filter 0.2s ease; }
+.faction-icon:hover { filter: drop-shadow(0 0 8px currentColor); }
+
+/* Spawn bracket threat color classes */
+.bracket-low    { color: #86efac; } /* green-300 */
+.bracket-mid    { color: #fde68a; } /* amber-200 */
+.bracket-high   { color: #fb923c; } /* orange-400 */
+.bracket-elite  { color: #f87171; } /* red-400 */
+
+/* Decorative divider */
+.gothic-divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(201, 168, 76, 0.3), transparent);
+}
+
+/* Corner ornament using pseudo-elements */
+.gothic-corners {
+  position: relative;
+}
+.gothic-corners::before,
+.gothic-corners::after {
+  content: '◆';
+  position: absolute;
+  color: rgba(201, 168, 76, 0.25);
+  font-size: 7px;
+  line-height: 1;
+}
+.gothic-corners::before { top: 5px; left: 7px; }
+.gothic-corners::after  { bottom: 5px; right: 7px; }
+
+/* Tag pill */
+.tag-pill {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 9999px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}

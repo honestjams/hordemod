@@ -286,6 +286,291 @@ const SPAWN_TABLES = {
     '10+': ['Achilles Ridgerunner', 'Goliath Truck', 'Goliath Rockgrinder', 'Cult Ambush (2 units)'],
   },
 };
+// ==================== FACTION VISUAL DATA ====================
+const FACTION_COLORS = {
+  'Space Marines':       { primary: '#3b82f6', bg: 'rgba(59,130,246,0.12)',  border: 'rgba(59,130,246,0.35)' },
+  'Adepta Sororitas':    { primary: '#ef4444', bg: 'rgba(239,68,68,0.12)',   border: 'rgba(239,68,68,0.35)' },
+  'Adeptus Mechanicus':  { primary: '#dc2626', bg: 'rgba(220,38,38,0.12)',   border: 'rgba(220,38,38,0.35)' },
+  'Adeptus Custodes':    { primary: '#d97706', bg: 'rgba(217,119,6,0.15)',   border: 'rgba(217,119,6,0.4)' },
+  'Grey Knights':        { primary: '#94a3b8', bg: 'rgba(148,163,184,0.1)', border: 'rgba(148,163,184,0.3)' },
+  'Astra Militarum':     { primary: '#65a30d', bg: 'rgba(101,163,13,0.12)',  border: 'rgba(101,163,13,0.35)' },
+  'Imperial Knights':    { primary: '#2563eb', bg: 'rgba(37,99,235,0.12)',   border: 'rgba(37,99,235,0.35)' },
+  'Chaos Knights':       { primary: '#b91c1c', bg: 'rgba(185,28,28,0.15)',   border: 'rgba(185,28,28,0.4)' },
+  'Chaos Space Marines': { primary: '#dc2626', bg: 'rgba(220,38,38,0.12)',   border: 'rgba(220,38,38,0.35)' },
+  'Chaos Daemons':       { primary: '#9333ea', bg: 'rgba(147,51,234,0.12)',  border: 'rgba(147,51,234,0.35)' },
+  'Thousand Sons':       { primary: '#3b82f6', bg: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.35)' },
+  'Death Guard':         { primary: '#65a30d', bg: 'rgba(101,163,13,0.1)',   border: 'rgba(101,163,13,0.3)' },
+  'World Eaters':        { primary: '#dc2626', bg: 'rgba(220,38,38,0.15)',   border: 'rgba(220,38,38,0.45)' },
+  'Aeldari':             { primary: '#a855f7', bg: 'rgba(168,85,247,0.12)',  border: 'rgba(168,85,247,0.35)' },
+  'Drukhari':            { primary: '#7c3aed', bg: 'rgba(124,58,237,0.12)',  border: 'rgba(124,58,237,0.35)' },
+  'Necrons':             { primary: '#22c55e', bg: 'rgba(34,197,94,0.1)',    border: 'rgba(34,197,94,0.3)' },
+  "T'au Empire":         { primary: '#0ea5e9', bg: 'rgba(14,165,233,0.1)',   border: 'rgba(14,165,233,0.3)' },
+  'Orks':                { primary: '#4ade80', bg: 'rgba(74,222,128,0.1)',   border: 'rgba(74,222,128,0.3)' },
+  'Leagues of Votann':   { primary: '#78716c', bg: 'rgba(120,113,108,0.1)', border: 'rgba(120,113,108,0.3)' },
+  'Tyranids':            { primary: '#c026d3', bg: 'rgba(192,38,211,0.12)',  border: 'rgba(192,38,211,0.35)' },
+  'Genestealer Cults':   { primary: '#7c3aed', bg: 'rgba(124,58,237,0.12)', border: 'rgba(124,58,237,0.35)' },
+};
+
+// ==================== FACTION BADGE IMAGE URLS ====================
+// Confirmed HTTP-200 public URLs (GitHub SVG repo + Lexicanum wiki)
+const FACTION_IMAGE_URLS = {
+  'Space Marines':        'https://raw.githubusercontent.com/Warhammer40kGroup/wh40k-icon/master/src/svgs/adeptus-astartes.svg',
+  'Adepta Sororitas':     'https://raw.githubusercontent.com/Warhammer40kGroup/wh40k-icon/master/src/svgs/sisters-of-battle.svg',
+  'Adeptus Mechanicus':   'https://raw.githubusercontent.com/Warhammer40kGroup/wh40k-icon/master/src/svgs/adeptus-mechanicus.svg',
+  'Adeptus Custodes':     'https://raw.githubusercontent.com/Warhammer40kGroup/wh40k-icon/master/src/svgs/adeptus-custodes.svg',
+  'Grey Knights':         'https://wh40k.lexicanum.com/mediawiki/images/9/94/Simple_Badge_Grey_Knights.png',
+  'Astra Militarum':      'https://raw.githubusercontent.com/Warhammer40kGroup/wh40k-icon/master/src/svgs/astra-militarum.svg',
+  'Imperial Knights':     'https://wh40k.lexicanum.com/mediawiki/images/4/48/Simple_Badge_Imperial_Knights.png',
+  'Chaos Knights':        'https://raw.githubusercontent.com/Warhammer40kGroup/wh40k-icon/master/src/svgs/chaos-star-01.svg',
+  'Chaos Space Marines':  'https://raw.githubusercontent.com/Warhammer40kGroup/wh40k-icon/master/src/svgs/black-legion.svg',
+  'Chaos Daemons':        'https://wh40k.lexicanum.com/mediawiki/images/b/b8/Simple_Badge_Chaos_Daemons.png',
+  'Thousand Sons':        'https://raw.githubusercontent.com/Warhammer40kGroup/wh40k-icon/master/src/svgs/thousand-sons.svg',
+  'Death Guard':          'https://raw.githubusercontent.com/Warhammer40kGroup/wh40k-icon/master/src/svgs/death-guard.svg',
+  'World Eaters':         'https://raw.githubusercontent.com/Warhammer40kGroup/wh40k-icon/master/src/svgs/world-eaters.svg',
+  'Aeldari':              'https://wh40k.lexicanum.com/mediawiki/images/6/66/Simple_Badge_Eldar.png',
+  'Drukhari':             'https://wh40k.lexicanum.com/mediawiki/images/7/79/Simple_Badge_Dark_Eldar.png',
+  'Necrons':              'https://raw.githubusercontent.com/Warhammer40kGroup/wh40k-icon/master/src/svgs/Xenos/Necrons/necrons.svg',
+  "T'au Empire":          'https://raw.githubusercontent.com/Warhammer40kGroup/wh40k-icon/master/src/svgs/Xenos/TauEmpire/tau.svg',
+  'Orks':                 'https://wh40k.lexicanum.com/mediawiki/images/d/d8/Simple_Badge_Orks.png',
+  'Leagues of Votann':    'https://wh40k.lexicanum.com/mediawiki/images/0/0e/Simple_Badge_Leagues_of_Votann.png',
+  'Tyranids':             'https://wh40k.lexicanum.com/mediawiki/images/0/0a/Simple_Badge_Tyranids.png',
+  'Genestealer Cults':    'https://wh40k.lexicanum.com/mediawiki/images/0/04/Tyranids.png',
+};
+
+// ==================== FACTION SVG ICONS (fallback) ====================
+// Rendered if the image URL fails to load
+const FactionSVGFallback = ({ faction, size, col }) => {
+  const icons = {
+    'Space Marines': (
+      // Kite shield + lightning bolt
+      <><polygon points="12,1.5 21,7 21,15 12,22.5 3,15 3,7" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+        <path d="M14 6l-5 7h3.5l-2.5 8 6-9h-3.5z" fill="currentColor"/></>
+    ),
+    'Adepta Sororitas': (
+      // Fleur-de-lis
+      <><path d="M12 3c0 0-3 4-3 7 0 2 1.5 2 3 2s3 0 3-2c0-3-3-7-3-7z" fill="currentColor"/>
+        <path d="M7 10c-3 1-4 3.5-3 5.5s3.5 1.5 4.5.5 1.5-3.5 0.5-4.5c-1-1-2-1.5-2-1.5z" fill="currentColor" opacity="0.85"/>
+        <path d="M17 10c3 1 4 3.5 3 5.5s-3.5 1.5-4.5.5-1.5-3.5-0.5-4.5c1-1 2-1.5 2-1.5z" fill="currentColor" opacity="0.85"/>
+        <rect x="9.5" y="17.5" width="5" height="2" rx="1" fill="currentColor"/></>
+    ),
+    'Adeptus Mechanicus': (
+      // Cog wheel with skull eyes
+      <>{[0,45,90,135,180,225,270,315].map(a => {
+          const r = Math.PI/180*a;
+          return <line key={a} x1={12+5.5*Math.cos(r)} y1={12+5.5*Math.sin(r)} x2={12+8.5*Math.cos(r)} y2={12+8.5*Math.sin(r)} stroke="currentColor" strokeWidth="2.8" strokeLinecap="round"/>;
+        })}
+        <circle cx="12" cy="12" r="4.5" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+        <circle cx="10.5" cy="11" r="1" fill="currentColor"/>
+        <circle cx="13.5" cy="11" r="1" fill="currentColor"/>
+        <path d="M10.5 13.5 Q12 15.5 13.5 13.5" stroke="currentColor" strokeWidth="1" fill="none" strokeLinecap="round"/></>
+    ),
+    'Adeptus Custodes': (
+      // Winged spear / shield
+      <><path d="M12 2 Q17 5 17 10 Q17 17 12 22 Q7 17 7 10 Q7 5 12 2Z" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+        <line x1="12" y1="2" x2="12" y2="19" stroke="currentColor" strokeWidth="1.5"/>
+        <polygon points="12,2 10,7 14,7" fill="currentColor"/>
+        <line x1="9" y1="10" x2="15" y2="10" stroke="currentColor" strokeWidth="1.2"/></>
+    ),
+    'Grey Knights': (
+      // Crossed swords
+      <><line x1="5" y1="4" x2="19" y2="20" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+        <line x1="19" y1="4" x2="5" y2="20" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+        <circle cx="5"  cy="4"  r="1.5" fill="currentColor"/>
+        <circle cx="19" cy="4"  r="1.5" fill="currentColor"/>
+        <rect x="10" y="10.5" width="4" height="2.5" rx="0.8" fill="currentColor" transform="rotate(45 12 12)"/></>
+    ),
+    'Astra Militarum': (
+      // 5-pointed star
+      <><polygon points="12,2 14.5,9 22,9 16,13.5 18.5,21 12,16.5 5.5,21 8,13.5 2,9 9.5,9" fill="currentColor"/></>
+    ),
+    'Imperial Knights': (
+      // Knight kite shield with quartered pattern
+      <><path d="M8 2h8v14l-4 6-4-6z" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+        <line x1="12" y1="2" x2="12" y2="16" stroke="currentColor" strokeWidth="1"/>
+        <line x1="8"  y1="9" x2="16" y2="9" stroke="currentColor" strokeWidth="1"/>
+        <circle cx="10" cy="5.5" r="1" fill="currentColor"/>
+        <circle cx="14" cy="12.5" r="1" fill="currentColor"/></>
+    ),
+    'Chaos Knights': (
+      // 8-pointed chaos star
+      <>{[0,45,90,135,180,225,270,315].map(a => {
+          const r=Math.PI/180*a;
+          return <line key={a} x1="12" y1="12" x2={12+10*Math.cos(r)} y2={12+10*Math.sin(r)} stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>;
+        })}
+        <circle cx="12" cy="12" r="2.5" fill="currentColor"/></>
+    ),
+    'Chaos Space Marines': (
+      // Skull with chaos horns
+      <><circle cx="12" cy="10" r="6" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+        <path d="M7 6.5L4.5 3M17 6.5L19.5 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+        <circle cx="9.5" cy="9.5" r="1.5" fill="currentColor"/>
+        <circle cx="14.5" cy="9.5" r="1.5" fill="currentColor"/>
+        <path d="M9 13.5h6l-.5 2h-5z" fill="currentColor"/></>
+    ),
+    'Chaos Daemons': (
+      // 4-armed chaos symbol with arrowheads
+      <><path d="M12 2v8M12 14v8M2 12h8M14 12h8" stroke="currentColor" strokeWidth="2"/>
+        <polygon points="12,2 10,6 14,6" fill="currentColor"/>
+        <polygon points="12,22 14,18 10,18" fill="currentColor"/>
+        <polygon points="2,12 6,10 6,14" fill="currentColor"/>
+        <polygon points="22,12 18,14 18,10" fill="currentColor"/>
+        <circle cx="12" cy="12" r="2.5" fill="currentColor"/></>
+    ),
+    'Thousand Sons': (
+      // Eye of fate with flame
+      <><path d="M4 12 Q12 5 20 12 Q12 19 4 12Z" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+        <circle cx="12" cy="12" r="2.5" fill="currentColor"/>
+        <path d="M10 9 Q12 3 14 9" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round"/></>
+    ),
+    'Death Guard': (
+      // Three overlapping circles (Nurgle)
+      <><circle cx="8.5"  cy="14" r="5" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+        <circle cx="15.5" cy="14" r="5" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+        <circle cx="12"   cy="8"  r="5" fill="none" stroke="currentColor" strokeWidth="1.5"/></>
+    ),
+    'World Eaters': (
+      // Skull with rage marks
+      <><circle cx="12" cy="10" r="6" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+        <circle cx="9.5"  cy="9"  r="1.5" fill="currentColor"/>
+        <circle cx="14.5" cy="9"  r="1.5" fill="currentColor"/>
+        <path d="M10 13.5h4l-.5 3.5h-3z" fill="currentColor"/>
+        <path d="M6 5L4 3M18 5L20 3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+        <path d="M5 8L3 7M19 8L21 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></>
+    ),
+    'Aeldari': (
+      // Crystal gem / Eldar rune
+      <><polygon points="12,2 18,8 18,16 12,22 6,16 6,8" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+        <polygon points="12,5 16,9 16,15 12,19 8,15 8,9" fill="none" stroke="currentColor" strokeWidth="0.8"/>
+        <line x1="12" y1="2"  x2="12" y2="22" stroke="currentColor" strokeWidth="0.6" opacity="0.5"/>
+        <line x1="6"  y1="8"  x2="18" y2="16" stroke="currentColor" strokeWidth="0.6" opacity="0.5"/>
+        <line x1="18" y1="8"  x2="6"  y2="16" stroke="currentColor" strokeWidth="0.6" opacity="0.5"/>
+        <circle cx="12" cy="12" r="1.5" fill="currentColor"/></>
+    ),
+    'Drukhari': (
+      // Spiked crescent claw
+      <><path d="M6 4 Q14 2 20 8 L17.5 10 Q13 5 7 6.5z" fill="currentColor"/>
+        <path d="M7.5 7 L6 21 Q11 19 13 17 Q11 12 7.5 7z" fill="currentColor" opacity="0.8"/>
+        <line x1="20" y1="8"  x2="22" y2="5" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+        <line x1="18" y1="11" x2="22" y2="10" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+        <line x1="17" y1="14" x2="21" y2="14" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></>
+    ),
+    'Necrons': (
+      // Angular geometric skull
+      <><rect x="6"   y="5"  width="12" height="10" rx="1" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+        <rect x="8.5"  y="8"  width="2.5" height="3"  rx="0.5" fill="currentColor"/>
+        <rect x="13"   y="8"  width="2.5" height="3"  rx="0.5" fill="currentColor"/>
+        <line x1="6"  y1="13" x2="18" y2="13" stroke="currentColor" strokeWidth="1"/>
+        <rect x="8"   y="15" width="3" height="4" rx="0.5" fill="currentColor"/>
+        <rect x="13"  y="15" width="3" height="4" rx="0.5" fill="currentColor"/></>
+    ),
+    "T'au Empire": (
+      // Circle with T symbol (Tau caste)
+      <><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+        <line x1="6.5" y1="8" x2="17.5" y2="8" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
+        <line x1="12"  y1="8" x2="12"   y2="18" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
+        <line x1="9"   y1="13" x2="15"  y2="13" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></>
+    ),
+    'Orks': (
+      // Skull with tusks
+      <><circle cx="12" cy="10" r="7" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+        <circle cx="9"  cy="9"  r="2" fill="currentColor"/>
+        <circle cx="15" cy="9"  r="2" fill="currentColor"/>
+        <path d="M9 14h6l-.5 2h-5z" fill="currentColor"/>
+        <line x1="8"  y1="15" x2="5.5" y2="20" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
+        <line x1="16" y1="15" x2="18.5" y2="20" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/></>
+    ),
+    'Leagues of Votann': (
+      // Runic tablet with angular inscription
+      <><rect x="7" y="2" width="10" height="20" rx="1.5" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+        <line x1="7"  y1="9"  x2="17" y2="9"  stroke="currentColor" strokeWidth="1.5"/>
+        <line x1="7"  y1="15" x2="17" y2="15" stroke="currentColor" strokeWidth="1.5"/>
+        <path d="M9.5 6L9 9 M12 5v4 M14.5 6L15 9" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+        <path d="M9 12l3 2 3-2" stroke="currentColor" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
+        <path d="M9.5 17L9 20 M14.5 17L15 20" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></>
+    ),
+    'Tyranids': (
+      // Two curved scything talons
+      <><path d="M12 2 Q17 4 19 9 Q21 15 19 20 L17 18 Q18.5 13 17 9 Q15 5 12 5z" fill="currentColor"/>
+        <path d="M12 2 Q7 4 5 9 Q3 15 5 20 L7 18 Q5.5 13 7 9 Q9 5 12 5z"          fill="currentColor"/>
+        <circle cx="12" cy="20" r="2.5" fill="currentColor"/></>
+    ),
+    'Genestealer Cults': (
+      // 6-armed rising star
+      <><circle cx="12" cy="12" r="3" fill="currentColor"/>
+        <line x1="12" y1="2"  x2="12" y2="9"  stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
+        <line x1="12" y1="15" x2="12" y2="22" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
+        <line x1="2.5" y1="7.5" x2="9"  y2="10.5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
+        <line x1="15"  y1="13.5" x2="21.5" y2="16.5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
+        <line x1="2.5" y1="16.5" x2="9"   y2="13.5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
+        <line x1="15"  y1="10.5" x2="21.5" y2="7.5"  stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/></>
+    ),
+  };
+
+  const iconJsx = icons[faction] || (
+    <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+  );
+
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width={size}
+      height={size}
+      className={`faction-icon ${className}`}
+      style={{ color: col, flexShrink: 0 }}
+      aria-label={faction}
+    >
+      {iconJsx}
+    </svg>
+  );
+};
+
+// FactionIcon — prefers real badge image, falls back to hand-drawn SVG
+const FactionIcon = ({ faction, size = 24, className = '' }) => {
+  const [imgFailed, setImgFailed] = useState(false);
+  const col = FACTION_COLORS[faction]?.primary || '#6b7280';
+  const imgUrl = FACTION_IMAGE_URLS[faction];
+
+  if (imgUrl && !imgFailed) {
+    return (
+      <img
+        src={imgUrl}
+        alt={faction}
+        width={size}
+        height={size}
+        onError={() => setImgFailed(true)}
+        className={`faction-icon ${className}`}
+        style={{
+          flexShrink: 0,
+          filter: `drop-shadow(0 0 5px ${col}90) brightness(1.1)`,
+          objectFit: 'contain',
+        }}
+      />
+    );
+  }
+
+  return <FactionSVGFallback faction={faction} size={size} col={col} className={className} />;
+};
+
+// ── Unit type classification for spawn suggestions ─────────────
+const getUnitType = (unitName) => {
+  const n = unitName.toLowerCase();
+  if (/tyrant|carnifex|greater daemon|bloodthirster|lord of change|great unclean|keeper of|dreadknight|wraithlord|wraithknight|gorkanaut|morkanaut|trygon|exocrine|tyrannofex|haruspex|mutalith|soul grinder|defiler|forgefiend|maulerfiend|bloat.drone|plagueburst|lord of skulls/i.test(n)) return 'monster';
+  if (/land raider|predator|leman russ|basilisk|manticore|hellhound|hammerhead|riptide|stormsurge|repulsor|gladiator|caladius|coronus|telemon|doomsday|monolith|doomstalker|battlewagon|hekaton|colossus|sagitaur|dunecrawler|kastelan|archaeopter|blight hauler|vindicator|chimera|immolator|exorcist|raider|ravager|falcon|fire prism|wave serpent|rhino/i.test(n)) return 'vehicle';
+  if (/outriders|bikers|rough rider|reavers|hellions|serberys|hernkyn|war dog|armiger|knight paladin|knight errant|knight gallant|knight preceptor|knight castellan|knight crusader|dominus|canis rex|stormraven|vertus praetor/i.test(n)) return 'cavalry';
+  if (/gargoyle|swooping hawk|pteraxii|stormboyz/i.test(n)) return 'flyer';
+  if (/\(1\)$|superior|repentia superior|kelermorph|nexos/i.test(n)) return 'character';
+  return 'infantry';
+};
+
+const UNIT_TYPE_LABELS = {
+  infantry:  { label: 'Infantry',  color: '#86efac', Icon: Users },
+  cavalry:   { label: 'Cavalry',   color: '#fde68a', Icon: Swords },
+  vehicle:   { label: 'Armour',    color: '#93c5fd', Icon: Shield },
+  monster:   { label: 'Monster',   color: '#f87171', Icon: Skull },
+  flyer:     { label: 'Flyer',     color: '#c4b5fd', Icon: Zap },
+  character: { label: 'Character', color: '#fcd34d', Icon: Trophy },
+};
+
 // ==================== HELPER FUNCTIONS ====================
 const shuffle = (array) => {
 const newArray = [...array];
@@ -331,47 +616,52 @@ const pickUnits = (faction, bracket, count, exclude = []) => {
   return shuffle([...pool]).slice(0, count);
 };
 // ==================== COMPONENTS ====================
-const Card = ({ children, className = '', onClick }) => (
-<div
-className={`bg-gray-800 rounded-lg border border-gray-700 ${onClick ? 'cursor-pointer hover:border-purple-500 transition-colors' : ''} ${className}`}
-onClick={onClick}
->
-{children}
-</div>
-);
+const Card = ({ children, className = '', onClick, faction }) => {
+  const fCol = faction ? FACTION_COLORS[faction] : null;
+  const style = fCol
+    ? { background: fCol.bg, borderColor: fCol.border }
+    : {};
+  return (
+    <div
+      className={`gothic-card gothic-corners bg-gray-900 rounded-lg border border-gray-700 ${onClick ? 'cursor-pointer hover:border-purple-500 transition-colors' : ''} ${className}`}
+      style={style}
+      onClick={onClick}
+    >
+      {children}
+    </div>
+  );
+};
+
 const Button = ({ children, onClick, variant = 'primary', size = 'md', disabled = false, className = '' }) => {
-const baseClasses = 'font-semibold rounded-lg transition-all flex items-center justify-center gap-2';
-const sizeClasses = {
-sm: 'px-3 py-1.5 text-sm',
-md: 'px-4 py-2',
-lg: 'px-6 py-3 text-lg'
+  const baseClasses = 'gothic-subheading font-semibold rounded-lg transition-all flex items-center justify-center gap-2 tracking-wide';
+  const sizeClasses = { sm: 'px-3 py-1.5 text-xs', md: 'px-4 py-2 text-sm', lg: 'px-6 py-3 text-base' };
+  const variantClasses = {
+    primary:   'bg-purple-800 hover:bg-purple-700 text-purple-100 border border-purple-600',
+    secondary: 'bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-600',
+    danger:    'bg-red-900 hover:bg-red-800 text-red-100 border border-red-700',
+    success:   'bg-green-900 hover:bg-green-800 text-green-100 border border-green-700',
+    ghost:     'bg-transparent hover:bg-gray-800 text-gray-400 border border-transparent',
   };
-const variantClasses = {
-primary: 'bg-purple-600 hover:bg-purple-700 text-white',
-secondary: 'bg-gray-700 hover:bg-gray-600 text-white',
-danger: 'bg-red-600 hover:bg-red-700 text-white',
-success: 'bg-green-600 hover:bg-green-700 text-white',
-ghost: 'bg-transparent hover:bg-gray-700 text-gray-300'
-  };
-return (
-<button
-onClick={onClick}
-disabled={disabled}
-className={`${baseClasses} ${sizeClasses[size]} ${variantClasses[variant]} ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
->
-{children}
-</button>
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`${baseClasses} ${sizeClasses[size]} ${variantClasses[variant]} ${disabled ? 'opacity-40 cursor-not-allowed' : ''} ${className}`}
+    >
+      {children}
+    </button>
   );
 };
 
 const PlayerCard = ({ player, onUpdateSP, onUpdateCP, isActive, isMyPlayer }) => (
-<Card className={`p-4 ${isActive ? 'ring-2 ring-purple-500' : ''}`}>
+<Card className={`p-4 ${isActive ? 'ring-1' : ''}`} style={isActive ? { boxShadow: `0 0 12px ${FACTION_COLORS[player.faction]?.border || 'rgba(147,51,234,0.4)'}` } : {}}>
 <div className="flex items-center justify-between gap-2 mb-3 min-w-0">
 <div className="flex items-center gap-2 min-w-0">
-<div className={`w-3 h-3 shrink-0 rounded-full ${player.color}`}></div>
-<span className="font-bold text-white truncate">{player.name}</span>
+  <FactionIcon faction={player.faction} size={20} />
+  <span className="font-bold text-white truncate text-sm gothic-subheading" style={{ letterSpacing: '0.05em' }}>{player.name}</span>
+  {isMyPlayer && <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: 'rgba(147,51,234,0.3)', color: '#c4b5fd', fontSize: '0.6rem' }}>YOU</span>}
 </div>
-<span className="text-xs text-gray-400 truncate shrink-0 max-w-[45%]">{player.faction}</span>
+<span className="text-xs text-gray-600 truncate shrink-0 max-w-[40%]">{player.faction}</span>
 </div>
 <div className="grid grid-cols-2 gap-3">
 <div className="bg-gray-900 rounded-lg p-2">
@@ -419,51 +709,65 @@ const PlayerCard = ({ player, onUpdateSP, onUpdateCP, isActive, isMyPlayer }) =>
 );
 
 const MiseryCard = ({ card, onClose }) => (
-<Card className="p-4 bg-gradient-to-br from-red-900/50 to-gray-800 border-red-700">
-<div className="flex items-start justify-between mb-2">
-<div className="flex items-center gap-2">
-<Skull className="text-red-500" size={20} />
-<span className="text-red-400 text-xs font-medium">MISERY #{card.id}</span>
-</div>
-{onClose && (
-<button onClick={onClose} className="text-gray-400 hover:text-white">
-<X size={16} />
-</button>
+  <div className="misery-card-bg gothic-card gothic-corners rounded-lg p-4 border blood-border relative">
+    <div className="flex items-start justify-between mb-2">
+      <div className="flex items-center gap-2">
+        <Skull className="blood-glow" size={20} style={{ color: '#ef4444', filter: 'drop-shadow(0 0 6px rgba(220,0,0,0.8))' }} />
+        <span className="text-red-500 text-xs gothic-subheading tracking-widest">MISERY CARD #{card.id}</span>
+      </div>
+      {onClose && (
+        <button onClick={onClose} className="text-gray-500 hover:text-red-400 transition-colors">
+          <X size={16} />
+        </button>
       )}
-</div>
-<h3 className="text-white font-bold mb-2">{card.name}</h3>
-<p className="text-gray-300 text-sm">{card.effect}</p>
-</Card>
+    </div>
+    <div className="gothic-divider mb-2" />
+    <h3 className="text-red-200 font-bold mb-2 gothic-subheading tracking-wide" style={{ fontSize: '1rem' }}>{card.name}</h3>
+    <p className="text-gray-400 text-sm leading-relaxed">{card.effect}</p>
+  </div>
 );
 
-const SecondaryCard = ({ mission, status, onComplete, onFail }) => (
-<Card className={`p-4 ${status === 'success' ? 'border-green-600' : status === 'failed' ? 'border-red-600' : 'border-yellow-600'}`}>
-<div className="flex items-start justify-between mb-2">
-<div className="flex items-center gap-2">
-<Trophy className={status === 'success' ? 'text-green-500' : status === 'failed' ? 'text-red-500' : 'text-yellow-500'} size={20} />
-<span className="text-yellow-400 text-xs font-medium">SECONDARY #{mission.id}</span>
-</div>
-</div>
-<h3 className="text-white font-bold mb-2">{mission.name}</h3>
-<p className="text-gray-300 text-sm mb-3">{mission.condition}</p>
-<div className="grid grid-cols-2 gap-2 text-xs mb-3">
-<div className="bg-green-900/30 p-2 rounded">
-<span className="text-green-400 block mb-1">Reward</span>
-<span className="text-gray-300">{mission.reward}</span>
-</div>
-<div className="bg-red-900/30 p-2 rounded">
-<span className="text-red-400 block mb-1">Punishment</span>
-<span className="text-gray-300">{mission.punishment}</span>
-</div>
-</div>
-{status === 'active' && (
-<div className="flex gap-2">
-<Button variant="success" size="sm" onClick={onComplete} className="flex-1">Complete</Button>
-<Button variant="danger" size="sm" onClick={onFail} className="flex-1">Fail</Button>
-</div>
-    )}
-</Card>
-);
+const SecondaryCard = ({ mission, status, onComplete, onFail }) => {
+  const statusStyle = {
+    success: { border: 'rgba(34,197,94,0.4)', glow: 'rgba(34,197,94,0.15)', icon: '#22c55e' },
+    failed:  { border: 'rgba(239,68,68,0.4)',  glow: 'rgba(239,68,68,0.15)', icon: '#ef4444' },
+    active:  { border: 'rgba(234,179,8,0.4)',  glow: 'rgba(234,179,8,0.08)', icon: '#eab308' },
+  }[status] || { border: 'rgba(234,179,8,0.4)', glow: 'rgba(234,179,8,0.08)', icon: '#eab308' };
+  return (
+    <div className="gothic-card gothic-corners rounded-lg p-4 border" style={{ borderColor: statusStyle.border, background: `linear-gradient(135deg, rgba(15,12,25,0.95) 0%, rgba(8,5,15,0.98) 100%)`, boxShadow: `0 0 15px ${statusStyle.glow}` }}>
+      <div className="flex items-start justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <Trophy size={18} style={{ color: statusStyle.icon }} />
+          <span className="text-xs gothic-subheading tracking-widest" style={{ color: statusStyle.icon }}>SECONDARY #{mission.id}</span>
+        </div>
+        {status !== 'active' && (
+          <span className="text-xs px-2 py-0.5 rounded gothic-subheading" style={{ background: `${statusStyle.icon}20`, color: statusStyle.icon }}>
+            {status === 'success' ? 'COMPLETED' : 'FAILED'}
+          </span>
+        )}
+      </div>
+      <div className="gothic-divider mb-2" />
+      <h3 className="text-white font-bold mb-2 gothic-subheading" style={{ letterSpacing: '0.06em' }}>{mission.name}</h3>
+      <p className="text-gray-400 text-sm mb-3 leading-relaxed">{mission.condition}</p>
+      <div className="grid grid-cols-2 gap-2 text-xs mb-3">
+        <div className="p-2 rounded" style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)' }}>
+          <span className="text-green-500 block mb-1 gothic-subheading tracking-widest text-xs">REWARD</span>
+          <span className="text-gray-300">{mission.reward}</span>
+        </div>
+        <div className="p-2 rounded" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)' }}>
+          <span className="text-red-500 block mb-1 gothic-subheading tracking-widest text-xs">PUNISHMENT</span>
+          <span className="text-gray-300">{mission.punishment}</span>
+        </div>
+      </div>
+      {status === 'active' && (
+        <div className="flex gap-2">
+          <Button variant="success" size="sm" onClick={onComplete} className="flex-1">Complete</Button>
+          <Button variant="danger" size="sm" onClick={onFail} className="flex-1">Fail</Button>
+        </div>
+      )}
+    </div>
+  );
+};
 
 const getBracket = (value) => {
   if (value <= 2) return 'No Spawn';
@@ -530,92 +834,191 @@ const SpawnRoller = ({ round, spawnModifier, hardMode, faction, onLogSpawn }) =>
     const { altSame, altLower, shown } = buildAlts(extraShown, sugg.bracket);
     setSugg({ ...sugg, phase: 'alts', altSame, altLower, shown });
   };
+  // Bracket threat-level config
+  const BRACKET_THEME = {
+    'No Spawn': { color: '#6b7280', label: 'No Spawn',    glow: 'rgba(107,114,128,0.3)' },
+    '3-4':      { color: '#86efac', label: 'Skirmish',    glow: 'rgba(134,239,172,0.3)' },
+    '5-6':      { color: '#fde68a', label: 'Assault',     glow: 'rgba(253,230,138,0.35)' },
+    '7-9':      { color: '#fb923c', label: 'Onslaught',   glow: 'rgba(251,146,60,0.4)' },
+    '10+':      { color: '#f87171', label: 'OVERWHELMING', glow: 'rgba(248,113,113,0.5)' },
+  };
+
+  const UnitEntry = ({ unit, onAccept, label, tierColor }) => {
+    const type = getUnitType(unit);
+    const typeInfo = UNIT_TYPE_LABELS[type] || UNIT_TYPE_LABELS.infantry;
+    const TypeIcon = typeInfo.Icon;
+    return (
+      <div className="rounded-lg p-3 mb-2" style={{ background: 'rgba(20,15,30,0.8)', border: `1px solid ${tierColor}40` }}>
+        {label && <div className="text-xs mb-1 gothic-subheading tracking-widest" style={{ color: tierColor }}>{label}</div>}
+        <div className="flex items-center gap-2 mb-2">
+          <TypeIcon size={14} style={{ color: typeInfo.color, flexShrink: 0 }} />
+          <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: `${typeInfo.color}20`, color: typeInfo.color }}>{typeInfo.label}</span>
+          <span className="text-white font-bold text-sm">{unit}</span>
+        </div>
+        <Button variant="success" size="sm" onClick={() => onAccept(unit)} className="w-full">
+          <Check size={13} /> Deploy
+        </Button>
+      </div>
+    );
+  };
+
+  const factionCol = FACTION_COLORS[faction] || {};
+
   return (
     <Card className="p-4">
-      <div className="flex items-center gap-2 mb-3">
-        <Dices className="text-purple-400" size={20} />
-        <span className="text-white font-bold">Spawn Roller</span>
+      {/* Header with faction identity */}
+      <div className="flex items-center gap-3 mb-4">
+        <div className="p-2 rounded-lg" style={{ background: factionCol.bg, border: `1px solid ${factionCol.border}` }}>
+          <FactionIcon faction={faction} size={28} />
+        </div>
+        <div>
+          <div className="flex items-center gap-2">
+            <Dices className="text-purple-400" size={16} />
+            <span className="text-white font-bold gothic-subheading tracking-wide text-sm">SPAWN ROLLER</span>
+          </div>
+          <span className="text-gray-500 text-xs">{faction}</span>
+        </div>
       </div>
-      <div className="flex items-center gap-4 mb-4">
-        <div className="text-sm text-gray-400">
-          Round modifier: <span className="text-purple-400 font-bold">+{baseModifier}</span>
+
+      {/* Modifier strip */}
+      <div className="flex items-center gap-3 mb-4 p-2 rounded-lg bg-gray-950 border border-gray-800">
+        <div className="text-xs text-gray-500 flex gap-1 items-center">
+          <span>Round</span>
+          <span className="text-purple-400 font-bold">+{baseModifier}</span>
         </div>
         {spawnModifier !== 0 && (
-          <div className="text-sm text-gray-400">
-            Extra: <span className={`font-bold ${spawnModifier > 0 ? 'text-red-400' : 'text-green-400'}`}>
+          <div className="text-xs text-gray-500 flex gap-1 items-center">
+            <span>Extra</span>
+            <span className={`font-bold ${spawnModifier > 0 ? 'text-red-400' : 'text-green-400'}`}>
               {spawnModifier > 0 ? '+' : ''}{spawnModifier}
             </span>
           </div>
         )}
-        <div className="text-sm text-gray-400">
-          Total: <span className="text-yellow-400 font-bold">+{totalModifier}</span>
+        <div className="text-xs text-gray-500 flex gap-1 items-center ml-auto">
+          <span>Total</span>
+          <span className="text-amber-400 font-bold">+{totalModifier}</span>
         </div>
       </div>
-      <Button onClick={handleRoll} disabled={rolling} className="w-full mb-4">
-        <Dices size={18} />
-        {rolling ? 'Rolling...' : 'Roll Spawn'}
+
+      <Button onClick={handleRoll} disabled={rolling} className={`w-full mb-4 ${rolling ? 'dice-rolling' : ''}`}>
+        <Dices size={18} className={rolling ? 'dice-rolling' : ''} />
+        {rolling ? 'Rolling...' : 'Roll 2D6 — Spawn'}
       </Button>
-      {result && (
-        <div className={`p-4 rounded-lg mb-4 ${result.isNoSpawn ? 'bg-gray-700' : 'bg-purple-900/50'}`}>
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-gray-400">Roll: {result.roll}</span>
-            <span className="text-gray-400">Modified: {result.modified}</span>
-          </div>
-          <div className={`text-2xl font-bold text-center mb-1 ${result.isNoSpawn ? 'text-gray-400' : 'text-purple-400'}`}>
-            {result.isNoSpawn ? 'No Spawn' : result.bracket}
-          </div>
-          {!result.isNoSpawn && (
-            <div className="text-center text-purple-300 text-sm">{BRACKET_PTS[result.bracket]}</div>
-          )}
-          {result.isNoSpawn && (
-            <div className="text-center text-yellow-400 text-sm mt-1">⚠️ Unmodified 2 = No Spawn</div>
-          )}
-        </div>
-      )}
-      {/* Initial suggestion */}
-      {sugg && sugg.phase === 'initial' && (
-        <div className="bg-gray-700 rounded-lg p-4 mb-2">
-          <div className="text-gray-400 text-xs uppercase tracking-wide mb-2">Suggested Spawn</div>
-          <div className="text-white font-bold text-lg mb-3">{sugg.unit}</div>
-          <div className="flex gap-2">
-            <Button variant="success" size="sm" onClick={() => handleAccept(sugg.unit)} className="flex-1">
-              <Check size={14} /> Accept
-            </Button>
-            <Button variant="secondary" size="sm" onClick={handleRefuse} className="flex-1">
-              <RefreshCw size={14} /> Refuse
-            </Button>
-          </div>
-        </div>
-      )}
-      {/* Alternatives after refuse */}
-      {sugg && sugg.phase === 'alts' && (
-        <div className="bg-gray-700 rounded-lg p-4 mb-2">
-          <div className="text-gray-400 text-xs uppercase tracking-wide mb-3">Alternative Spawns</div>
-          {sugg.altSame && (
-            <div className="mb-3 p-3 bg-gray-800 rounded-lg">
-              <div className="text-xs text-purple-400 mb-1">Same Tier — {sugg.bracket} ({BRACKET_PTS[sugg.bracket]})</div>
-              <div className="text-white font-bold mb-2">{sugg.altSame}</div>
-              <Button variant="success" size="sm" onClick={() => handleAccept(sugg.altSame)} className="w-full">
-                <Check size={14} /> Accept
-              </Button>
-            </div>
-          )}
-          {sugg.altLower && sugg.altLower.length > 0 && (
-            <div className="mb-3 p-3 bg-gray-800 rounded-lg">
-              <div className="text-xs text-yellow-400 mb-1">
-                Tier Below — {getBracketBelow(sugg.bracket)} ({BRACKET_PTS[getBracketBelow(sugg.bracket)]})
+
+      {/* Result display */}
+      {result && (() => {
+        const theme = BRACKET_THEME[result.bracket] || BRACKET_THEME['No Spawn'];
+        return (
+          <div
+            className={`p-4 rounded-lg mb-4 ${result.isNoSpawn ? 'dim-pulse' : 'spawn-pulse'}`}
+            style={{
+              background: result.isNoSpawn
+                ? 'rgba(20,20,30,0.8)'
+                : `linear-gradient(135deg, rgba(20,10,30,0.9) 0%, rgba(40,5,5,0.8) 100%)`,
+              border: `1px solid ${theme.glow}`,
+              boxShadow: result.isNoSpawn ? 'none' : `0 0 20px ${theme.glow}`,
+            }}
+          >
+            {/* Dice values */}
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <span className="text-gray-500 text-xs">RAW</span>
+                <span className="text-white font-mono font-bold text-lg">{result.roll}</span>
               </div>
-              <div className="text-white font-bold mb-2">{sugg.altLower.join(' + ')}</div>
-              <Button variant="success" size="sm" onClick={() => handleAccept(sugg.altLower)} className="w-full">
-                <Check size={14} /> Accept Both
-              </Button>
+              <div className="text-gray-600 text-xs">+{totalModifier} mod</div>
+              <div className="flex items-center gap-2">
+                <span className="text-gray-500 text-xs">TOTAL</span>
+                <span className="font-mono font-bold text-lg" style={{ color: theme.color }}>{result.modified}</span>
+              </div>
             </div>
-          )}
-          <Button variant="ghost" size="sm" onClick={handleNewAlts} className="w-full mt-1">
-            <RefreshCw size={14} /> Show Different Options
-          </Button>
-        </div>
-      )}
+
+            <div className="gothic-divider mb-3" />
+
+            {/* Bracket result */}
+            <div className="text-center">
+              <div className="text-xs gothic-subheading tracking-widest mb-1" style={{ color: theme.color, opacity: 0.7 }}>
+                THREAT LEVEL
+              </div>
+              <div className="gothic-subheading font-bold mb-1" style={{ fontSize: '2rem', color: theme.color, lineHeight: 1 }}>
+                {result.isNoSpawn ? 'NO SPAWN' : result.bracket}
+              </div>
+              <div className="text-xs font-semibold mb-1" style={{ color: theme.color }}>
+                {theme.label}
+              </div>
+              {!result.isNoSpawn && (
+                <div className="text-xs text-gray-500">{BRACKET_PTS[result.bracket]}</div>
+              )}
+              {result.isNoSpawn && (
+                <div className="text-xs text-gray-500 italic mt-1">Unmodified 2 — no reinforcements</div>
+              )}
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* Initial suggestion */}
+      {sugg && sugg.phase === 'initial' && (() => {
+        const theme = BRACKET_THEME[sugg.bracket] || {};
+        return (
+          <div className="rounded-lg p-3 mb-2" style={{ background: 'rgba(10,5,20,0.95)', border: `1px solid ${theme.glow || '#444'}` }}>
+            <div className="text-xs gothic-subheading tracking-widest mb-2" style={{ color: theme.color }}>
+              SUGGESTED SPAWN — {sugg.bracket}
+            </div>
+            <UnitEntry unit={sugg.unit} onAccept={handleAccept} tierColor={theme.color || '#888'} />
+            <Button variant="secondary" size="sm" onClick={handleRefuse} className="w-full">
+              <RefreshCw size={13} /> Request Alternatives
+            </Button>
+          </div>
+        );
+      })()}
+
+      {/* Alternatives */}
+      {sugg && sugg.phase === 'alts' && (() => {
+        const theme = BRACKET_THEME[sugg.bracket] || {};
+        const lowerBracket = getBracketBelow(sugg.bracket);
+        const lowerTheme = lowerBracket ? BRACKET_THEME[lowerBracket] : null;
+        return (
+          <div className="rounded-lg p-3 mb-2" style={{ background: 'rgba(10,5,20,0.95)', border: `1px solid ${theme.glow || '#444'}` }}>
+            <div className="text-xs gothic-subheading tracking-widest mb-3" style={{ color: theme.color }}>
+              ALTERNATIVE REINFORCEMENTS
+            </div>
+            {sugg.altSame && (
+              <UnitEntry
+                unit={sugg.altSame}
+                onAccept={handleAccept}
+                label={`SAME TIER — ${sugg.bracket}`}
+                tierColor={theme.color || '#888'}
+              />
+            )}
+            {sugg.altLower && sugg.altLower.length > 0 && (
+              <div className="rounded-lg p-3 mb-2" style={{ background: 'rgba(20,15,30,0.8)', border: `1px solid ${lowerTheme?.glow || '#444'}40` }}>
+                <div className="text-xs mb-1 gothic-subheading tracking-widest" style={{ color: lowerTheme?.color }}>
+                  TIER BELOW — {lowerBracket} ({BRACKET_PTS[lowerBracket]})
+                </div>
+                <div className="flex items-center gap-2 mb-2 flex-wrap">
+                  {sugg.altLower.map(u => {
+                    const type = getUnitType(u);
+                    const typeInfo = UNIT_TYPE_LABELS[type] || UNIT_TYPE_LABELS.infantry;
+                    const TypeIcon = typeInfo.Icon;
+                    return (
+                      <span key={u} className="flex items-center gap-1">
+                        <TypeIcon size={12} style={{ color: typeInfo.color }} />
+                        <span className="text-white text-sm font-bold">{u}</span>
+                      </span>
+                    );
+                  })}
+                </div>
+                <Button variant="success" size="sm" onClick={() => handleAccept(sugg.altLower)} className="w-full">
+                  <Check size={13} /> Deploy Both
+                </Button>
+              </div>
+            )}
+            <Button variant="ghost" size="sm" onClick={handleNewAlts} className="w-full mt-1">
+              <RefreshCw size={13} /> Show More Options
+            </Button>
+          </div>
+        );
+      })()}
     </Card>
   );
 };
@@ -667,12 +1070,21 @@ const LobbyScreen = ({ onCreateSession, onJoinSession }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 p-4 flex items-center justify-center">
+    <div className="min-h-screen p-4 flex items-center justify-center" style={{ background: 'linear-gradient(160deg, #09090f 60%, #120510 100%)' }}>
       <div className="max-w-sm w-full">
-        <div className="text-center mb-8">
-          <Skull className="text-red-500 mx-auto mb-3" size={48} />
-          <h1 className="text-4xl font-bold text-purple-400 mb-2">HORDE MODE</h1>
-          <p className="text-gray-400">40K Cooperative Game Mode Companion</p>
+        <div className="text-center mb-10">
+          {/* Gothic skull with glow */}
+          <div className="relative inline-block mb-4">
+            <Skull className="text-red-700 mx-auto" size={64} style={{ filter: 'drop-shadow(0 0 18px rgba(180,0,0,0.7))' }} />
+          </div>
+          <h1 className="gothic-decorative text-5xl font-bold mb-1 gold-shimmer" style={{ color: '#c9a84c', letterSpacing: '0.18em' }}>
+            HORDE
+          </h1>
+          <h2 className="gothic-decorative text-3xl font-bold mb-3" style={{ color: '#c9a84c', letterSpacing: '0.22em', opacity: 0.85 }}>
+            MODE
+          </h2>
+          <div className="gothic-divider mx-8 mb-3" />
+          <p className="text-gray-500 text-xs gothic-subheading tracking-widest">40K COOPERATIVE COMPANION</p>
         </div>
         <div className="space-y-4">
           <Card className="p-6">
@@ -720,14 +1132,14 @@ const LobbyScreen = ({ onCreateSession, onJoinSession }) => {
 
 // ==================== WAITING SCREEN ====================
 const WaitingScreen = ({ sessionCode }) => (
-  <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
+  <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'linear-gradient(160deg, #09090f 60%, #120510 100%)' }}>
     <div className="text-center max-w-sm">
-      <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
-      <h2 className="text-2xl font-bold text-white mb-2">Waiting for Host</h2>
-      <p className="text-gray-400 mb-6">The host is setting up the game...</p>
-      <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
-        <p className="text-gray-400 text-sm mb-1">Session Code</p>
-        <p className="text-4xl font-mono font-bold text-purple-400 tracking-widest">{sessionCode}</p>
+      <div className="w-16 h-16 border-2 border-purple-700 border-t-transparent rounded-full animate-spin mx-auto mb-6" style={{ borderTopColor: 'transparent', borderColor: 'rgba(147,51,234,0.6)' }}></div>
+      <h2 className="gothic-subheading text-xl font-bold text-gray-300 mb-2 tracking-widest">AWAITING COMMAND</h2>
+      <p className="text-gray-600 mb-6 text-sm">The host is preparing the battlefield...</p>
+      <div className="rounded-xl p-5 imperial-border gothic-card gothic-corners" style={{ background: 'rgba(15,10,25,0.9)' }}>
+        <p className="text-gray-600 text-xs gothic-subheading tracking-widest mb-2">SESSION CODE</p>
+        <p className="text-5xl font-mono font-bold tracking-widest gold-shimmer" style={{ color: '#c9a84c' }}>{sessionCode}</p>
       </div>
     </div>
   </div>
@@ -780,11 +1192,13 @@ pointsPerPlayer
     });
   };
 return (
-<div className="min-h-screen bg-gray-900 p-4">
+<div className="min-h-screen p-4" style={{ background: 'linear-gradient(160deg, #09090f 60%, #120510 100%)' }}>
 <div className="max-w-2xl mx-auto">
 <div className="text-center mb-6">
-<h1 className="text-4xl font-bold text-purple-400 mb-2">HORDE MODE</h1>
-<p className="text-gray-400">40K Cooperative Game Mode Companion</p>
+  <Skull className="text-red-700 mx-auto mb-2" size={36} style={{ filter: 'drop-shadow(0 0 10px rgba(180,0,0,0.6))' }} />
+  <h1 className="gothic-decorative text-4xl font-bold gold-shimmer mb-1" style={{ color: '#c9a84c', letterSpacing: '0.18em' }}>HORDE MODE</h1>
+  <div className="gothic-divider mx-16 mb-2" />
+  <p className="text-gray-600 text-xs gothic-subheading tracking-widest">GAME SETUP</p>
 </div>
 {sessionCode && (
   <div className="bg-gray-800 rounded-xl p-4 mb-6 text-center border-2 border-purple-600">
@@ -836,16 +1250,30 @@ className="flex-1"
 </p>
 </div>
 <div>
-<label className="block text-gray-400 mb-2">Horde Faction</label>
-<select
-value={hordeFaction}
-onChange={(e) => setHordeFaction(e.target.value)}
-className="w-full bg-gray-700 text-white rounded-lg p-2 border border-gray-600"
->
-{FACTIONS.map(f => (
-<option key={f} value={f}>{f}</option>
-                ))}
-</select>
+<label className="block text-gray-400 mb-3 text-xs gothic-subheading tracking-widest uppercase">Horde Faction</label>
+{/* Faction grid picker */}
+<div className="grid grid-cols-3 gap-2 mb-3">
+  {FACTIONS.map(f => {
+    const fc = FACTION_COLORS[f];
+    const isSelected = hordeFaction === f;
+    return (
+      <button
+        key={f}
+        onClick={() => setHordeFaction(f)}
+        className="flex flex-col items-center gap-1 p-2 rounded-lg border transition-all text-center"
+        style={{
+          background: isSelected ? fc?.bg : 'rgba(30,30,40,0.6)',
+          borderColor: isSelected ? fc?.border : 'rgba(75,75,90,0.4)',
+          boxShadow: isSelected ? `0 0 12px ${fc?.border}` : 'none',
+        }}
+        title={f}
+      >
+        <FactionIcon faction={f} size={22} />
+        <span className="text-gray-300 leading-tight" style={{ fontSize: '0.55rem', lineHeight: '1.2' }}>{f}</span>
+      </button>
+    );
+  })}
+</div>
 {HORDE_FACTION_RULES[hordeFaction] && (
 <div className="mt-2 p-3 bg-purple-900/30 rounded-lg border border-purple-700">
 <span className="text-purple-400 font-bold">{HORDE_FACTION_RULES[hordeFaction].name}</span>
@@ -1002,7 +1430,7 @@ const logSpawn = (entry) => {
   });
 };
 return (
-<div className="min-h-screen bg-gray-900">
+<div className="min-h-screen" style={{ background: 'linear-gradient(160deg, #09090f 60%, #120510 100%)' }}>
 {/* Claim Slot Overlay */}
 {showClaimOverlay && (
   <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -1049,11 +1477,18 @@ return (
 )}
 
 {/* Header */}
-<div className="bg-gray-800 border-b border-gray-700 p-4">
-<div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
-<div className="min-w-0">
-<h1 className="text-2xl font-bold text-purple-400">HORDE MODE</h1>
-<p className="text-gray-400 text-sm truncate">vs {hordeFaction} {hardMode && '• HARD MODE'} • <span className="font-mono text-purple-300">{sessionCode}</span></p>
+<div className="border-b p-3" style={{ background: 'linear-gradient(180deg, #0f0010 0%, #09090f 100%)', borderColor: 'rgba(100,60,150,0.3)' }}>
+<div className="max-w-4xl mx-auto flex items-center justify-between gap-3">
+<div className="flex items-center gap-3 min-w-0">
+  <div className="p-1.5 rounded" style={{ background: FACTION_COLORS[hordeFaction]?.bg, border: `1px solid ${FACTION_COLORS[hordeFaction]?.border}` }}>
+    <FactionIcon faction={hordeFaction} size={26} />
+  </div>
+  <div className="min-w-0">
+    <h1 className="gothic-decorative font-bold leading-none" style={{ color: '#c9a84c', fontSize: '1.1rem', letterSpacing: '0.15em' }}>HORDE MODE</h1>
+    <p className="text-gray-500 text-xs truncate gothic-subheading" style={{ letterSpacing: '0.05em' }}>
+      vs {hordeFaction}{hardMode && ' • ⚠ HARD'} • <span className="text-purple-400 font-mono">{sessionCode}</span>
+    </p>
+  </div>
 </div>
 <div className="flex items-center gap-4">
 <div className="text-center">
@@ -1174,12 +1609,14 @@ onUpdateCP={(id, delta) => updatePlayer(id, 'cp', delta)}
   const isMe = player.id === myPlayerId;
   const canSeeSecret = isMe || player.secretRevealed;
   return (
-<Card key={player.id} className="p-4">
+<Card key={player.id} className="p-4" faction={player.faction}>
 <div className="flex items-center gap-3 mb-4 min-w-0">
-<div className={`w-4 h-4 shrink-0 rounded-full ${player.color}`}></div>
-<h3 className="text-xl font-bold text-white truncate">{player.name}</h3>
-<span className="text-gray-400 text-sm truncate">{player.faction}</span>
-{isMe && <span className="ml-auto shrink-0 px-2 py-0.5 bg-purple-800 text-purple-200 rounded text-xs">You</span>}
+<FactionIcon faction={player.faction} size={32} />
+<div className="min-w-0">
+  <h3 className="text-lg font-bold text-white truncate gothic-subheading" style={{ letterSpacing: '0.08em' }}>{player.name}</h3>
+  <span className="text-gray-500 text-xs">{player.faction}</span>
+</div>
+{isMe && <span className="ml-auto shrink-0 px-2 py-0.5 rounded text-xs gothic-subheading" style={{ background: 'rgba(147,51,234,0.3)', color: '#c4b5fd' }}>YOU</span>}
 </div>
 <div className="grid grid-cols-2 gap-4 mb-4">
 <div className="bg-gray-900 rounded-lg p-4">
