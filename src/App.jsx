@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { Skull, Users, Swords, Shield, Zap, ChevronRight, ChevronLeft, RotateCcw, Plus, Minus, Dices, AlertTriangle, Trophy, X, Settings, Play, Eye, EyeOff } from 'lucide-react';
+import { Skull, Users, Swords, Shield, Zap, ChevronRight, ChevronLeft, RotateCcw, Plus, Minus, Dices, AlertTriangle, Trophy, X, Settings, Play, Eye, EyeOff, Check, RefreshCw } from 'lucide-react';
 // ==================== GAME DATA ====================
 const FACTIONS = [
 'Space Marines', 'Adepta Sororitas', 'Adeptus Mechanicus', 'Adeptus Custodes',
@@ -141,6 +141,136 @@ const RESUPPLY_OPTIONS = [
   { cost: 8, name: 'Artillery Strike', effect: '9" radius, D6 per model: 5+ = 1MW (3MW for Monster/Vehicle).', tags: ['Strike'] },
   { cost: 12, name: 'Reinforcements Arrive', effect: 'Roll 2D6, spawn unit from your Spawning Table.', tags: ['Spawn'] }
 ];
+// ==================== SPAWN TABLES ====================
+// Units organised by faction and spawn bracket (3-4 / 5-6 / 7-9 / 10+)
+const SPAWN_TABLES = {
+  'Space Marines': {
+    '3-4': ['Scout Squad (5)', 'Infiltrator Squad (5)', 'Eliminator Squad (3)', 'Incursor Squad (5)'],
+    '5-6': ['Intercessor Squad (5)', 'Assault Intercessors (5)', 'Heavy Intercessors (5)', 'Tactical Squad (10)'],
+    '7-9': ['Eradicators (3)', 'Aggressors (3)', 'Outriders (3)', 'Bladeguard Veterans (3)'],
+    '10+': ['Redemptor Dreadnought', 'Land Raider', 'Repulsor', 'Gladiator Lancer', 'Predator Annihilator'],
+  },
+  'Adepta Sororitas': {
+    '3-4': ['Repentia Superior', 'Crusaders (5)', 'Battle Sisters (5)', 'Arco-flagellants (5)'],
+    '5-6': ['Battle Sisters Squad (10)', 'Zephyrim (5)', 'Seraphim (5)', 'Retributors (5)'],
+    '7-9': ['Sisters Repentia (9)', 'Celestian Sacresants (5)', 'Paragon Warsuits (3)', 'Arco-flagellants (10)'],
+    '10+': ['Penitent Engines (2)', 'Immolator', 'Exorcist', 'Mortifiers (4)'],
+  },
+  'Adeptus Mechanicus': {
+    '3-4': ['Skitarii Rangers (5)', 'Skitarii Vanguard (5)', 'Sicarian Ruststalkers (5)'],
+    '5-6': ['Skitarii Rangers (10)', 'Pteraxii Skystalkers (5)', 'Serberys Raiders (3)', 'Serberys Sulphurhounds (3)'],
+    '7-9': ['Sicarian Infiltrators (5)', 'Kataphron Breachers (3)', 'Kataphron Destroyers (3)', 'Ironstrider Ballistarii (2)'],
+    '10+': ['Onager Dunecrawler', 'Kastelan Robots (2)', 'Ironstrider Cavaliers (3)', 'Archaeopter Fusilave'],
+  },
+  'Adeptus Custodes': {
+    '3-4': ['Custodian Guard (3)', 'Prosecutors (5)', 'Sagittarum Guard (3)'],
+    '5-6': ['Custodian Guard (5)', 'Vertus Praetors (3)', 'Custodian Wardens (3)'],
+    '7-9': ['Allarus Custodians (3)', 'Custodian Wardens (5)', 'Vertus Praetors (5)'],
+    '10+': ['Caladius Grav-tank', 'Land Raider', 'Telemon Dreadnought', 'Coronus Grav-carrier'],
+  },
+  'Grey Knights': {
+    '3-4': ['Strike Squad (5)', 'Terminators (3)', 'Purifier Squad (5)'],
+    '5-6': ['Strike Squad (10)', 'Interceptor Squad (5)', 'Purgation Squad (5)'],
+    '7-9': ['Terminators (5)', 'Paladins (5)', 'Purifier Squad (10)'],
+    '10+': ['Grand Master Dreadknight', 'Stormraven Gunship', 'Land Raider Crusader'],
+  },
+  'Astra Militarum': {
+    '3-4': ['Infantry Squad (10)', 'Conscripts (10)', 'Ogryns (3)', 'Ratlings (5)'],
+    '5-6': ['Infantry Squad (20)', 'Veteran Guardsmen (10)', 'Kasrkin (10)', 'Catachan Jungle Fighters (10)'],
+    '7-9': ['Rough Riders (5)', 'Armoured Sentinels (3)', 'Tempestus Scions (10)', 'Heavy Weapons Squad (3)'],
+    '10+': ['Leman Russ Battle Tank', 'Chimera', 'Basilisk', 'Manticore', 'Hellhound'],
+  },
+  'Imperial Knights': {
+    '3-4': ['Armiger Warglaive (1)', 'Armiger Helverin (1)'],
+    '5-6': ['Armiger Warglaives (2)', 'Armiger Helverins (2)'],
+    '7-9': ['Knight Paladin', 'Knight Errant', 'Knight Gallant', 'Knight Preceptor'],
+    '10+': ['Knight Castellan', 'Knight Crusader', 'Dominus Valiant', 'Canis Rex'],
+  },
+  'Chaos Knights': {
+    '3-4': ['War Dog Karnivore (1)', 'War Dog Huntsman (1)'],
+    '5-6': ['War Dog Karnivores (2)', 'War Dog Brigands (2)', 'War Dog Moirax (2)'],
+    '7-9': ['Knight Abominant', 'Knight Desecrator', 'Knight Rampager'],
+    '10+': ['Knight Tyrant', 'War Dog Karnivores (3)', 'War Dog Brigands (3)'],
+  },
+  'Chaos Space Marines': {
+    '3-4': ['Cultist Mob (10)', 'Legionaries (5)', 'Chaos Cultists (10)'],
+    '5-6': ['Legionaries (10)', 'Chaos Havocs (5)', 'Warp Talons (5)', 'Chaos Raptors (5)'],
+    '7-9': ['Chosen (5)', 'Chaos Terminators (5)', 'Bikers (5)', 'Noise Marines (5)'],
+    '10+': ['Chaos Predator Destructor', 'Chaos Vindicator', 'Chaos Land Raider', 'Maulerfiend', 'Forgefiend'],
+  },
+  'Chaos Daemons': {
+    '3-4': ['Bloodletters (10)', 'Plaguebearers (10)', 'Daemonettes (10)', 'Pink Horrors (10)', 'Blue Horrors (20)'],
+    '5-6': ['Flesh Hounds (10)', 'Beasts of Nurgle (3)', 'Seekers (10)', 'Nurglings (3)'],
+    '7-9': ['Bloodcrushers (3)', 'Plague Drones (3)', 'Fiends (3)', 'Flamers (3)'],
+    '10+': ['Bloodthirster', 'Great Unclean One', 'Keeper of Secrets', 'Lord of Change', 'Soul Grinder'],
+  },
+  'Thousand Sons': {
+    '3-4': ['Tzaangors (10)', 'Rubric Marines (5)', 'Chaos Cultists (10)'],
+    '5-6': ['Rubric Marines (10)', 'Tzaangors (20)', 'Tzaangor Enlightened (3)', 'Tzaangor Skyfires (3)'],
+    '7-9': ['Scarab Occult Terminators (5)', 'Chaos Spawn (3)'],
+    '10+': ['Mutalith Vortex Beast', 'Defiler', 'Forgefiend', 'Maulerfiend'],
+  },
+  'Death Guard': {
+    '3-4': ['Poxwalkers (10)', 'Plague Marines (5)', 'Cultists of the Plague God (10)'],
+    '5-6': ['Poxwalkers (20)', 'Plague Marines (7)', 'Deathshroud Terminators (3)'],
+    '7-9': ['Deathshroud Terminators (5)', 'Blightlord Terminators (5)', 'Chaos Spawn (3)'],
+    '10+': ['Foetid Bloat-drone', 'Plagueburst Crawler', 'Blight Hauler (2)', 'Defiler'],
+  },
+  'World Eaters': {
+    '3-4': ['Jakhals (10)', 'Khorne Berzerkers (5)', 'Chaos Cultists (10)'],
+    '5-6': ['Khorne Berzerkers (8)', 'Jakhals (20)', 'Chaos Bikers (5)'],
+    '7-9': ['Eightbound (3)', 'Exalted Eightbound (3)', 'World Eaters Terminators (5)'],
+    '10+': ['Lord of Skulls', 'Defiler', 'Maulerfiend', 'Chaos Land Raider'],
+  },
+  'Aeldari': {
+    '3-4': ['Guardian Defenders (10)', 'Storm Guardians (10)', 'Rangers (5)', 'Windriders (3)'],
+    '5-6': ['Dire Avengers (10)', 'Howling Banshees (5)', 'Fire Dragons (5)', 'Striking Scorpions (5)', 'Swooping Hawks (5)'],
+    '7-9': ['Dark Reapers (5)', 'Shining Spears (3)', 'Warp Spiders (5)', 'Wraithblades (5)'],
+    '10+': ['Wraithlord', 'Falcon', 'Fire Prism', 'Wave Serpent', 'Wraithknight'],
+  },
+  'Drukhari': {
+    '3-4': ['Kabalite Warriors (10)', 'Wyches (10)', 'Mandrakes (5)'],
+    '5-6': ['Kabalite Warriors (20)', 'Wyches (10)', 'Hellions (10)', 'Reavers (6)'],
+    '7-9': ['Incubi (5)', 'Grotesques (3)', 'Scourges (5)', 'Haemoxytes (10)'],
+    '10+': ['Talos Pain Engine (2)', 'Cronos (2)', 'Ravager', 'Raider'],
+  },
+  'Necrons': {
+    '3-4': ['Necron Warriors (10)', 'Immortals (5)', 'Scarab Swarms (3)'],
+    '5-6': ['Necron Warriors (20)', 'Immortals (10)', 'Tomb Blades (6)', 'Flayed Ones (10)'],
+    '7-9': ['Lychguard (5)', 'Deathmarks (10)', 'Triarch Praetorians (5)', 'Wraiths (3)'],
+    '10+': ['Doomsday Ark', 'Doomstalker', 'Monolith', 'Tesseract Ark'],
+  },
+  'T\'au Empire': {
+    '3-4': ['Fire Warriors (10)', 'Kroot Carnivores (10)', 'Kroot Hounds (10)'],
+    '5-6': ['Fire Warriors (20)', 'Pathfinder Team (10)', 'Stealth Battlesuits (3)', 'Kroot Farstalkers (10)'],
+    '7-9': ['Crisis Battlesuits (3)', 'Broadside Battlesuits (3)', 'Ghostkeel Battlesuit'],
+    '10+': ['Hammerhead Gunship', 'Riptide Battlesuit', 'Stormsurge'],
+  },
+  'Orks': {
+    '3-4': ['Boyz (10)', 'Gretchin (20)', 'Kommandos (5)'],
+    '5-6': ['Boyz (20)', 'Flash Gitz (5)', 'Stormboyz (10)', 'Tank Bustas (10)'],
+    '7-9': ['Nobz (10)', 'Meganobz (3)', 'Lootas (10)', 'Burna Boyz (10)'],
+    '10+': ['Deff Dread', 'Battlewagon', 'Gorkanaut', 'Morkanaut'],
+  },
+  'Leagues of Votann': {
+    '3-4': ['Hearthkyn Warriors (10)', 'Cthonian Beserks (5)'],
+    '5-6': ['Hearthkyn Warriors (20)', 'Hernkyn Pioneers (3)', 'Hearthkyn Salvagers (10)'],
+    '7-9': ['Cthonian Beserks (10)', 'Hernkyn Yaegir (5)', 'Brôkhyr Thunderkyn (3)'],
+    '10+': ['Hekaton Land Fortress', 'Sagitaur (2)', 'Colossus'],
+  },
+  'Tyranids': {
+    '3-4': ['Termagants (10)', 'Hormagaunts (10)', 'Von Ryan\'s Leapers (3)', 'Barbgaunts (5)'],
+    '5-6': ['Gargoyles (20)', 'Genestealers (10)', 'Neurogaunts (20)', 'Ripper Swarms (6)'],
+    '7-9': ['Tyranid Warriors (6)', 'Raveners (6)', 'Zoanthropes (3)', 'Tyranid Shrikes (6)'],
+    '10+': ['Carnifex', 'Exocrine', 'Hive Tyrant', 'Trygon', 'Tyrannofex', 'Haruspex'],
+  },
+  'Genestealer Cults': {
+    '3-4': ['Neophyte Hybrids (10)', 'Acolyte Hybrids (5)', 'Brood Brothers (10)'],
+    '5-6': ['Neophyte Hybrids (20)', 'Acolyte Hybrids (10)', 'Hybrid Metamorphs (10)'],
+    '7-9': ['Aberrants (5)', 'Atalan Jackals (5)', 'Kelermorph', 'Nexos'],
+    '10+': ['Achilles Ridgerunner', 'Goliath Truck', 'Goliath Rockgrinder', 'Cult Ambush (2 units)'],
+  },
+};
 // ==================== HELPER FUNCTIONS ====================
 const shuffle = (array) => {
 const newArray = [...array];
@@ -152,6 +282,24 @@ return newArray;
 };
 const rollD6 = () => Math.floor(Math.random() * 6) + 1;
 const roll2D6 = () => rollD6() + rollD6();
+const BRACKET_ORDER = ['3-4', '5-6', '7-9', '10+'];
+const getBracketBelow = (bracket) => {
+  const idx = BRACKET_ORDER.indexOf(bracket);
+  return idx > 0 ? BRACKET_ORDER[idx - 1] : null;
+};
+const pickUnit = (faction, bracket, exclude = []) => {
+  const units = SPAWN_TABLES[faction]?.[bracket] || [];
+  const available = units.filter(u => !exclude.includes(u));
+  const pool = available.length > 0 ? available : units;
+  if (pool.length === 0) return null;
+  return pool[Math.floor(Math.random() * pool.length)];
+};
+const pickUnits = (faction, bracket, count, exclude = []) => {
+  const units = SPAWN_TABLES[faction]?.[bracket] || [];
+  const available = units.filter(u => !exclude.includes(u));
+  const pool = available.length > 0 ? available : units;
+  return shuffle([...pool]).slice(0, count);
+};
 // ==================== COMPONENTS ====================
 const Card = ({ children, className = '', onClick }) => (
 <div
@@ -280,84 +428,158 @@ const SecondaryCard = ({ mission, status, onComplete, onFail }) => (
     )}
 </Card>
 );
-const SpawnRoller = ({ round, spawnModifier, hardMode, onRoll }) => {
-const [result, setResult] = useState(null);
-const [rolling, setRolling] = useState(false);
-const getSpawnModifier = () => {
-if (hardMode) {
-if (round === 1) return 0;
-if (round === 2) return 1;
-if (round === 3) return 2;
-if (round === 4) return 3;
-if (round >= 5) return 3;
+const getBracket = (value) => {
+  if (value <= 2) return 'No Spawn';
+  if (value <= 4) return '3-4';
+  if (value <= 6) return '5-6';
+  if (value <= 9) return '7-9';
+  return '10+';
+};
+const BRACKET_PTS = { '3-4': '~75 pts', '5-6': '80-170 pts', '7-9': '175-295 pts', '10+': '300+ pts' };
+const SpawnRoller = ({ round, spawnModifier, hardMode, faction, onLogSpawn }) => {
+  const [result, setResult] = useState(null);
+  const [rolling, setRolling] = useState(false);
+  const [sugg, setSugg] = useState(null);
+  // sugg: null | { bracket, unit, shown: string[], phase: 'initial'|'alts', altSame?, altLower? }
+  const getBaseModifier = () => {
+    if (hardMode) {
+      if (round === 1) return 0;
+      if (round === 2) return 1;
+      if (round === 3) return 2;
+      return 3;
     } else {
-if (round <= 2) return 0;
-if (round <= 4) return 1;
-return 2;
+      if (round <= 2) return 0;
+      if (round <= 4) return 1;
+      return 2;
     }
-return 0;
   };
-const baseModifier = getSpawnModifier();
-const totalModifier = baseModifier + spawnModifier;
-const handleRoll = () => {
-setRolling(true);
-setTimeout(() => {
-const roll = roll2D6();
-const modified = roll + totalModifier;
-setResult({ roll, modified, isNoSpawn: roll === 2 });
-setRolling(false);
-onRoll?.(modified, roll === 2);
+  const baseModifier = getBaseModifier();
+  const totalModifier = baseModifier + spawnModifier;
+  const handleRoll = () => {
+    setRolling(true);
+    setSugg(null);
+    setTimeout(() => {
+      const roll = roll2D6();
+      const modified = roll + totalModifier;
+      const isNoSpawn = roll === 2;
+      const bracket = isNoSpawn ? 'No Spawn' : getBracket(modified);
+      setResult({ roll, modified, isNoSpawn, bracket });
+      setRolling(false);
+      if (!isNoSpawn) {
+        const unit = pickUnit(faction, bracket);
+        if (unit) setSugg({ bracket, unit, shown: [unit], phase: 'initial' });
+      }
     }, 500);
   };
-const getBracket = (value) => {
-if (value <= 2) return 'No Spawn';
-if (value <= 4) return '3-4';
-if (value <= 6) return '5-6';
-if (value <= 9) return '7-9';
-return '10+';
+  const handleAccept = (units) => {
+    onLogSpawn?.({ round, bracket: sugg.bracket, units: Array.isArray(units) ? units : [units] });
+    setSugg(null);
   };
-return (
-<Card className="p-4">
-<div className="flex items-center gap-2 mb-3">
-<Dices className="text-purple-400" size={20} />
-<span className="text-white font-bold">Spawn Roller</span>
-</div>
-<div className="flex items-center gap-4 mb-4">
-<div className="text-sm text-gray-400">
+  const buildAlts = (currentShown, bracket) => {
+    const shown = [...currentShown];
+    const altSame = pickUnit(faction, bracket, shown);
+    if (altSame) shown.push(altSame);
+    const bracketBelow = getBracketBelow(bracket);
+    const altLower = bracketBelow ? pickUnits(faction, bracketBelow, 2, []) : null;
+    return { altSame, altLower, shown };
+  };
+  const handleRefuse = () => {
+    const { altSame, altLower, shown } = buildAlts(sugg.shown, sugg.bracket);
+    setSugg({ ...sugg, phase: 'alts', altSame, altLower, shown });
+  };
+  const handleNewAlts = () => {
+    const extraShown = [...sugg.shown];
+    if (sugg.altSame) extraShown.push(sugg.altSame);
+    const { altSame, altLower, shown } = buildAlts(extraShown, sugg.bracket);
+    setSugg({ ...sugg, phase: 'alts', altSame, altLower, shown });
+  };
+  return (
+    <Card className="p-4">
+      <div className="flex items-center gap-2 mb-3">
+        <Dices className="text-purple-400" size={20} />
+        <span className="text-white font-bold">Spawn Roller</span>
+      </div>
+      <div className="flex items-center gap-4 mb-4">
+        <div className="text-sm text-gray-400">
           Round modifier: <span className="text-purple-400 font-bold">+{baseModifier}</span>
-</div>
-{spawnModifier !== 0 && (
-<div className="text-sm text-gray-400">
+        </div>
+        {spawnModifier !== 0 && (
+          <div className="text-sm text-gray-400">
             Extra: <span className={`font-bold ${spawnModifier > 0 ? 'text-red-400' : 'text-green-400'}`}>
-{spawnModifier > 0 ? '+' : ''}{spawnModifier}
-</span>
-</div>
+              {spawnModifier > 0 ? '+' : ''}{spawnModifier}
+            </span>
+          </div>
         )}
-<div className="text-sm text-gray-400">
+        <div className="text-sm text-gray-400">
           Total: <span className="text-yellow-400 font-bold">+{totalModifier}</span>
-</div>
-</div>
-<Button onClick={handleRoll} disabled={rolling} className="w-full mb-4">
-<Dices size={18} />
-{rolling ? 'Rolling...' : 'Roll Spawn'}
-</Button>
-{result && (
-<div className={`p-4 rounded-lg ${result.isNoSpawn ? 'bg-gray-700' : 'bg-purple-900/50'}`}>
-<div className="flex items-center justify-between mb-2">
-<span className="text-gray-400">Roll: {result.roll}</span>
-<span className="text-gray-400">Modified: {result.modified}</span>
-</div>
-<div className={`text-2xl font-bold text-center ${result.isNoSpawn ? 'text-gray-400' : 'text-purple-400'}`}>
-{getBracket(result.isNoSpawn ? 2 : result.modified)}
-</div>
-{result.isNoSpawn && (
-<div className="text-center text-yellow-400 text-sm mt-2">
-              ⚠️ Unmodified 2 = No Spawn
-</div>
+        </div>
+      </div>
+      <Button onClick={handleRoll} disabled={rolling} className="w-full mb-4">
+        <Dices size={18} />
+        {rolling ? 'Rolling...' : 'Roll Spawn'}
+      </Button>
+      {result && (
+        <div className={`p-4 rounded-lg mb-4 ${result.isNoSpawn ? 'bg-gray-700' : 'bg-purple-900/50'}`}>
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-gray-400">Roll: {result.roll}</span>
+            <span className="text-gray-400">Modified: {result.modified}</span>
+          </div>
+          <div className={`text-2xl font-bold text-center mb-1 ${result.isNoSpawn ? 'text-gray-400' : 'text-purple-400'}`}>
+            {result.isNoSpawn ? 'No Spawn' : result.bracket}
+          </div>
+          {!result.isNoSpawn && (
+            <div className="text-center text-purple-300 text-sm">{BRACKET_PTS[result.bracket]}</div>
           )}
-</div>
+          {result.isNoSpawn && (
+            <div className="text-center text-yellow-400 text-sm mt-1">⚠️ Unmodified 2 = No Spawn</div>
+          )}
+        </div>
       )}
-</Card>
+      {/* Initial suggestion */}
+      {sugg && sugg.phase === 'initial' && (
+        <div className="bg-gray-700 rounded-lg p-4 mb-2">
+          <div className="text-gray-400 text-xs uppercase tracking-wide mb-2">Suggested Spawn</div>
+          <div className="text-white font-bold text-lg mb-3">{sugg.unit}</div>
+          <div className="flex gap-2">
+            <Button variant="success" size="sm" onClick={() => handleAccept(sugg.unit)} className="flex-1">
+              <Check size={14} /> Accept
+            </Button>
+            <Button variant="secondary" size="sm" onClick={handleRefuse} className="flex-1">
+              <RefreshCw size={14} /> Refuse
+            </Button>
+          </div>
+        </div>
+      )}
+      {/* Alternatives after refuse */}
+      {sugg && sugg.phase === 'alts' && (
+        <div className="bg-gray-700 rounded-lg p-4 mb-2">
+          <div className="text-gray-400 text-xs uppercase tracking-wide mb-3">Alternative Spawns</div>
+          {sugg.altSame && (
+            <div className="mb-3 p-3 bg-gray-800 rounded-lg">
+              <div className="text-xs text-purple-400 mb-1">Same Tier — {sugg.bracket} ({BRACKET_PTS[sugg.bracket]})</div>
+              <div className="text-white font-bold mb-2">{sugg.altSame}</div>
+              <Button variant="success" size="sm" onClick={() => handleAccept(sugg.altSame)} className="w-full">
+                <Check size={14} /> Accept
+              </Button>
+            </div>
+          )}
+          {sugg.altLower && sugg.altLower.length > 0 && (
+            <div className="mb-3 p-3 bg-gray-800 rounded-lg">
+              <div className="text-xs text-yellow-400 mb-1">
+                Tier Below — {getBracketBelow(sugg.bracket)} ({BRACKET_PTS[getBracketBelow(sugg.bracket)]})
+              </div>
+              <div className="text-white font-bold mb-2">{sugg.altLower.join(' + ')}</div>
+              <Button variant="success" size="sm" onClick={() => handleAccept(sugg.altLower)} className="w-full">
+                <Check size={14} /> Accept Both
+              </Button>
+            </div>
+          )}
+          <Button variant="ghost" size="sm" onClick={handleNewAlts} className="w-full mt-1">
+            <RefreshCw size={14} /> Show Different Options
+          </Button>
+        </div>
+      )}
+    </Card>
   );
 };
 // ==================== SETUP SCREEN ====================
@@ -603,6 +825,12 @@ onUpdateState({
 spawnModifier: spawnModifier + value
     });
   };
+const logSpawn = (entry) => {
+onUpdateState({
+...gameState,
+spawnLog: [...(gameState.spawnLog || []), entry]
+    });
+  };
 return (
 <div className="min-h-screen bg-gray-900">
 {/* Header */}
@@ -798,6 +1026,8 @@ className="text-purple-400 hover:text-purple-300"
 round={round}
 spawnModifier={spawnModifier}
 hardMode={hardMode}
+faction={hordeFaction}
+onLogSpawn={logSpawn}
 />
 <Card className="p-4">
 <h3 className="text-white font-bold mb-3">Spawn Modifier Adjustments</h3>
@@ -839,6 +1069,20 @@ hardMode={hardMode}
 </div>
               )}
 </Card>
+{gameState.spawnLog && gameState.spawnLog.length > 0 && (
+<Card className="p-4">
+<h3 className="text-white font-bold mb-3">Spawn Log</h3>
+<div className="space-y-2">
+{gameState.spawnLog.map((entry, idx) => (
+<div key={idx} className="flex items-center gap-3 bg-gray-900 rounded-lg p-2 text-sm">
+<span className="text-gray-500 w-6">R{entry.round}</span>
+<span className="px-2 py-0.5 bg-purple-800 text-purple-200 rounded text-xs font-bold">{entry.bracket}</span>
+<span className="text-white flex-1">{entry.units.join(' + ')}</span>
+</div>
+                ))}
+</div>
+</Card>
+            )}
 </div>
         )}
 {activeTab === 'resupply' && (
@@ -924,7 +1168,8 @@ activeSecondary: null,
 spawnModifier: 0,
 miseryDeck: shuffle(MISERY_CARDS),
 secondaryDeck: shuffle(SECONDARY_MISSIONS),
-secondariesCompleted: 0
+secondariesCompleted: 0,
+spawnLog: []
     });
 setGamePhase('game');
   };
